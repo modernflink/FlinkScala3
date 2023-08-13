@@ -1,0 +1,32 @@
+<!-- logback.xml -->
+<configuration>
+    <property name="LOG_HOME" value="logs" />
+
+    <appender name="JOB1"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/job1/job.out</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover hourly -->
+            <fileNamePattern>${LOG_HOME}/job1/%d{yyyyMMdd_HH}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>1MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="SectionOne" level="INFO" additivity="false">
+        <appender-ref ref="JOB1" />
+    </logger>
+
+    <logger name="SectionTwo" level="INFO" additivity="false">
+        <appender-ref ref="JOB1" />
+    </logger>
+    <!-- rest of configs -->
+</configuration>
