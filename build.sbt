@@ -1,17 +1,19 @@
 Global / onChangedBuildSource := ReloadOnSourceChanges
-
+ThisBuild / resolvers ++= Seq(
+  Resolver.mavenCentral,
+  "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
+  Resolver.mavenLocal
+)
 // give the user a nice default project!
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / scalacOptions ++= Seq("-new-syntax", "-rewrite")
 
-val flinkVersion = "1.17.0"
+val flinkVersion = "1.17.1"
 val flinkDependencies = Seq(
-  ("org.flinkextended" %% "flink-scala-api" % s"1.17.1_1.0.0")
-    .excludeAll(
-      ExclusionRule(organization = "org.apache.flink")
-    ),
+  "org.flinkextended" %% "flink-scala-api" % s"${flinkVersion}_1.0.0" % Provided,
   "org.apache.flink" % "flink-runtime-web" % flinkVersion % Provided,
-  "org.apache.flink" % "flink-clients" % flinkVersion % Provided,
+  "org.apache.flink" % "flink-clients" % flinkVersion,
   "org.apache.flink" % "flink-test-utils" % flinkVersion % Test,
   "org.apache.flink" % "flink-streaming-java" % flinkVersion % Test classifier ("tests"),
   "org.scalatest" %% "scalatest" % "3.2.13" % Test
@@ -38,13 +40,14 @@ lazy val root = (project in file(".")).settings(
 //  }
 )
 
-//assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(false)
+assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(true)
 
 ThisBuild / assemblyMergeStrategy := {
 //  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
 //  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
   case "application.conf"                            => MergeStrategy.concat
   case "META-INF/io.netty.versions.properties"                => MergeStrategy.first
+  case ".flink-runtime.version.properties"                => MergeStrategy.first
   case x =>
     val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -69,7 +72,8 @@ assembly / assemblyExcludedJars := {
         Set(
           "scala-asm-9.3.0-scala-1.jar",
           "interface-1.0.4.jar",
-          "scala-compiler-2.13.6.jar"
+          "scala-compiler-2.13.6.jar",
+//          "flink-rpc-akka-loader-1.15.4.jar"
         ).contains(
           f.data.getName
         )
