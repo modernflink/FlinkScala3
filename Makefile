@@ -1,4 +1,4 @@
-FLINK_VERSION=1.17.1
+FLINK_VERSION = 1.17.1
 build-scala-image:
 	docker build --build-arg FLINK_VERSION=${FLINK_VERSION} -t flink:${FLINK_VERSION}-stream2-no-scala -f Dockerfile .
 

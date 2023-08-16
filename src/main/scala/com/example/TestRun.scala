@@ -1,3 +1,5 @@
+package com.example
+
 import org.apache.flink.api.*
 import org.apache.flink.api.serializers.intInfo
 
