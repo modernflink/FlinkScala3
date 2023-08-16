@@ -1,12 +1,10 @@
 package modernflink.model
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
-
 import java.time.{Instant, ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import org.apache.flink.api.serializers.*
-
 import scala.util.Try 
 
 case class TemperatureReading(location: String, timestamp: Long, max: Double, min: Double){
@@ -26,8 +24,8 @@ case class TemperatureReading(location: String, timestamp: Long, max: Double, mi
 
 object TemperatureReading {
   def fromString(string: String): TemperatureReading = Try {
-    val Array(city, time, max, min) = string.split(',')
-    TemperatureReading(city.trim, time.trim.toLong, max.trim.toDouble, min.trim.toDouble)
+    val Array(location, timestamp, max, min) = string.split(',')
+    TemperatureReading(location.trim, timestamp.trim.toLong, max.trim.toDouble, min.trim.toDouble)
   }.toOption.getOrElse(TemperatureReading("error reading", 0L, 0.0, 0.0))
 
   given humidityReadingTypeInformation: TypeInformation[TemperatureReading] = deriveTypeInformation

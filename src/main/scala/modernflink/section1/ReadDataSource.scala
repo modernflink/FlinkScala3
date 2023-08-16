@@ -13,9 +13,7 @@ import _root_.java.time.format.DateTimeFormatter
 import _root_.java.util.Locale
 import modernflink.model.DataGenerator.{SubscriptionEvent, SubscriptionEventsGenerator}
 import org.apache.flink.api.common.typeinfo.TypeInformation
-
 import scala.io.Source
-
 import Given.given
 
 object Given:
@@ -37,12 +35,13 @@ object ReadDataSource {
     testStreamOne.print("OutputStream1").setParallelism(3)
 
     // 2. stream from a file
-    val testStreamTwo = env.readTextFile("src/main/resources/Humidity.txt")
-//    testStreamTwo.map(HumidityReading.fromString).print("OutputStream2").setParallelism(3)
+    val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
+    val testStreamTwo = inputFile.map(HumidityReading.fromString)
+    testStreamTwo.print("OutputStream2").setParallelism(3)
 
     // 3. stream from socket
     val testStreamThree = env.socketTextStream("127.0.0.1", 1235)
-//    testStreamThree.print("OutputStream3")
+    testStreamThree.print("OutputStream3")
 
     // 4. read from a data generator
     val testStreamFour: DataStream[SubscriptionEvent] = env.addSource(new SubscriptionEventsGenerator(
