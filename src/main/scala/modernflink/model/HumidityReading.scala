@@ -10,6 +10,8 @@ import org.apache.flink.api.serializers.*
 import scala.util.Try
 case class HumidityReading(location: String, timestamp: Long, humidity: Double) {
 
+  override def toString: String = s"HumidityReading($location, ${formatTime()}, $humidity)"
+
   def formatTime(format: String = "yyyy-MM-dd"): String = {
     DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
       .format(

@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import org.apache.flink.api.serializers.*
 
-import scala.util.Try
+import scala.util.Try 
 
 case class TemperatureReading(location: String, timestamp: Long, max: Double, min: Double){
 

@@ -34,7 +34,7 @@ object ReadDataSource {
       HumidityReading("Tucson", 1685172115, 0.44)
     ))
 
-//    testStreamOne.print("OutputStream1").setParallelism(3)
+    testStreamOne.print("OutputStream1").setParallelism(3)
 
     // 2. stream from a file
     val testStreamTwo = env.readTextFile("src/main/resources/Humidity.txt")
