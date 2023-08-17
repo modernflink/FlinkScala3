@@ -4,7 +4,6 @@ import org.apache.flink.streaming.api.*
 import org.apache.flink.api.*
 import org.apache.flink.api.serializers.*
 import org.apache.flink.api.common.typeinfo.TypeInformation
-
 import scala.io.Source
 import modernflink.model.{HumidityReading, TemperatureReading}
 import org.apache.flink.api.common.functions.RichMapFunction
@@ -51,8 +50,8 @@ object MultipleStream {
 
     val outputConnectedStream: DataStream[(String, String)] = humidityAndTemperatureData
       .map(
-        (value: HumidityReading) => value.location -> s"Humidity at ${value.location} is ${value.humidity}",
-        (value: TemperatureReading) => value.location -> s"Highest and lowest temperature at ${value.location} are ${value.max} and ${value.min}"
+        (value: HumidityReading) => value.location -> s"Humidity on ${value.formatTime("yyyy-MM-dd")} is ${value.humidity}",
+        (value: TemperatureReading) => value.location -> s"Highest and lowest temperature on ${value.formatTime("yyyy-MM-dd")} are ${value.max} and ${value.min}"
       )
       .keyBy(_._1)
 

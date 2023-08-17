@@ -1,6 +1,6 @@
 package modernflink.model
 
-import DataGenerator.SubscriptionEvent
+import SubscriptionEventGenerator.SubscriptionEvent
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.functions.source.SourceFunction
@@ -10,23 +10,23 @@ import java.time.Instant
 import java.util.UUID
 import scala.meta.tokens.Token.Interpolation.Start
 import scala.util.Random
-object DataGenerator :
+object SubscriptionEventGenerator :
 
   sealed trait SubscriptionEvent:
     def userId: String
     def time: java.time.Instant
-    def subscriptionNum: String
+    def eventNum: String
 
   case class PaymentEvent(
                          userId: String,
                          time: Instant,
-                         subscriptionNum: String
+                         eventNum: String
                          ) extends SubscriptionEvent
 
   case class CancelEvent(
                           userId: String,
                          time: Instant,
-                         subscriptionNum: String
+                          eventNum: String
                          ) extends SubscriptionEvent
 
   class SubscriptionEventsGenerator(

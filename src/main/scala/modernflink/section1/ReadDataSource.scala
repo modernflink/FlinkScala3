@@ -11,7 +11,7 @@ import _root_.java.util.Collection
 import _root_.java.time.{Instant, ZoneId, ZonedDateTime}
 import _root_.java.time.format.DateTimeFormatter
 import _root_.java.util.Locale
-import modernflink.model.DataGenerator.{SubscriptionEvent, SubscriptionEventsGenerator}
+import modernflink.model.SubscriptionEventGenerator.{SubscriptionEvent, SubscriptionEventsGenerator}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import scala.io.Source
 import Given.given
