@@ -7,8 +7,8 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 
 import scala.io.Source
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
-import org.apache.flink.api.function.{AllWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.windowing.assigners.{GlobalWindows, SlidingEventTimeWindows, TumblingProcessingTimeWindows}
+import org.apache.flink.api.function.WindowFunction
+import org.apache.flink.streaming.api.windowing.assigners.{GlobalWindows, SlidingEventTimeWindows, TumblingEventTimeWindows, TumblingProcessingTimeWindows}
 import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, TimeWindow, Window}
 import org.apache.flink.util.Collector
@@ -18,14 +18,13 @@ import modernflink.model.BankingEventGenerator
 import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
 import org.apache.flink.streaming.api.windowing.time.Time
 import Given.given
-
-
-class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWindow]{
-  override def apply(window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit = {
-    out.collect(s"${window.getStart} to ${window.getEnd}: ${input}")
+class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]{
+  override def apply(key: String, window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit = {
+    out.collect(s"${key} ${window.getStart} to ${window.getEnd}: ${input}")
   }
 }
-object SlidingWindow {
+
+object TumblingWindow {
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -33,24 +32,25 @@ object SlidingWindow {
     sleepSeconds = 1,
     startTime = Instant.parse("2023-08-13T00:00:00.00Z"))
   ).assignTimestampsAndWatermarks(
-      WatermarkStrategy.forBoundedOutOfOrderness(java.time.Duration.ofMillis(0))
-        .withTimestampAssigner(new SerializableTimestampAssigner[Deposit] {
-          override def extractTimestamp(element: Deposit, recordTimestamp: Long) =
-            element.time.toEpochMilli
-        })
-    )
+    WatermarkStrategy.forBoundedOutOfOrderness(java.time.Duration.ofMillis(0))
+      .withTimestampAssigner(new SerializableTimestampAssigner[Deposit] {
+        override def extractTimestamp(element: Deposit, recordTimestamp: Long) =
+          element.time.toEpochMilli
+      })
+  )
 
-  def createSlidingWindowStream(): Unit = {
+  def createTumblingWindowStream(): Unit = {
     val depositByWindowStream = depositData
-      .windowAll(SlidingEventTimeWindows.of(Time.milliseconds(200), Time.milliseconds(100)))
+      .keyBy(_.currency)
+      .window(TumblingEventTimeWindows.of(Time.seconds(5)))
 
-    val slidingWindowStream = depositByWindowStream.apply(new DepositBySlidingWindow)
+    val tumblingWindowStream = depositByWindowStream.apply(new DepositByTumblingWindow)
 
-    slidingWindowStream.print()
+    tumblingWindowStream.print()
     env.execute()
   }
 
   def main(args: Array[String]): Unit = {
-    createSlidingWindowStream()
+    createTumblingWindowStream()
   }
 }
