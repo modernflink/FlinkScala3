@@ -26,30 +26,9 @@ lazy val root = (project in file(".")).settings(
   libraryDependencies ++= flinkDependencies,
 )
 
-
-//    "org.flinkextended" %% "flink-scala-api" % "1.17.1_1.0.0",
-//    "org.apache.flink" % "flink-connector-kafka" % "1.17.0",
-//    "org.apache.flink" % "flink-clients" % flinkVersion
-
-//  assemblyMergeStrategy := {
-//    case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
-//    case PathList("org", "apache", "flink", _*)         => MergeStrategy.first
-//    case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
-//    case "META-INF/io.netty.versions.properties" => MergeStrategy.discard
-//    case "scala-collection-compat.properties" => MergeStrategy.first
-//    case "application.conf"                            => MergeStrategy.concat
-//    case "unwanted.txt"                                => MergeStrategy.discard
-//    case x =>
-//      val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
-//      oldStrategy(x)
-//  }
-
-
-assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(true)
+//assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(true)
 
 ThisBuild / assemblyMergeStrategy := {
-//  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
-//  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
   case "application.conf"                            => MergeStrategy.concat
   case "META-INF/io.netty.versions.properties"                => MergeStrategy.first
   case ".flink-runtime.version.properties"                => MergeStrategy.first
@@ -78,7 +57,6 @@ assembly / assemblyExcludedJars := {
           "scala-asm-9.3.0-scala-1.jar",
           "interface-1.0.4.jar",
           "scala-compiler-2.13.6.jar",
-//          "flink-rpc-akka-loader-1.15.4.jar"
         ).contains(
           f.data.getName
         )

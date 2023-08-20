@@ -1,4 +1,4 @@
-package section2
+package modernflink.section2
 
 import modernflink.model.SubscriptionEventGenerator.{SubscriptionEvent, SubscriptionEventsGenerator}
 import org.apache.flink.api.StreamExecutionEnvironment

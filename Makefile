@@ -15,10 +15,10 @@ destroy:
 
 launch:
 	flink run-application -p 3 -t kubernetes-application \
-		-c com.example.wordCount \
+		-c section2.EventTimeProcessingTime \
 		-Dtaskmanager.numberOfTaskSlots=2 \
 		-Dkubernetes.rest-service.exposed.type=NodePort \
-		-Dkubernetes.cluster-id=flink-word-count \
+		-Dkubernetes.cluster-id=eventtime-processingtime \
 		-Dkubernetes.container.image=flink:${FLINK_VERSION}-stream2-no-scala \
 		-Dkubernetes.service-account=flink-service-account \
 		local:///opt/flink/usrlib/my-flink-job.jar

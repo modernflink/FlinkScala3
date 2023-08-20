@@ -1,4 +1,4 @@
-package section2
+package modernflink.section2
 
 import org.apache.flink.streaming.api.*
 import org.apache.flink.api.StreamExecutionEnvironment
