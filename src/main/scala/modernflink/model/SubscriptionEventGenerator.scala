@@ -68,7 +68,7 @@ object SubscriptionEventGenerator :
 
     object SubscriptionEventsGenerator{
 
-      val users: Seq[String] = Seq("Rob", "David", "Charlie", "Frank", "Peggy", "Max", "David", "Emma", "Chris")
+      val users: Seq[String] = Seq("Rob", "David", "Charlie", "Frank", "Peggy", "Max", "David", "Emma", "Chris", "Doug", "Katie", "Faye", "Christie", "Joan")
       def genUser: String = users(scala.util.Random.nextInt(users.length))
     }
 
