@@ -25,7 +25,7 @@ class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWind
       input: Iterable[Deposit],
       out: Collector[String]
   ): Unit =
-    out.collect(s"${window.getStart} to ${window.getEnd}: ${input}")
+    out.collect(s"${window.getStart} to ${window.getEnd}: $input")
 object SlidingWindow:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment

@@ -32,12 +32,8 @@ class HumidityAlert() extends KeyedProcessFunction[String, HumidityReading, Stri
 
   // initialize state
   override def open(parameters: Configuration): Unit =
-    lastReading = getRuntimeContext.getState(
-      new ValueStateDescriptor[Double]("lastReading", classOf[Double])
-    )
-    currentTime = getRuntimeContext.getState(
-      new ValueStateDescriptor[Long]("currentTime", classOf[Long])
-    )
+    lastReading = getRuntimeContext.getState(ValueStateDescriptor[Double]("lastReading", classOf[Double]))
+    currentTime = getRuntimeContext.getState(ValueStateDescriptor[Long]("currentTime", classOf[Long]))
 
   override def processElement(
       value: HumidityReading,
@@ -83,7 +79,7 @@ object ValueState:
 
     val humidityAlertStream = humidityData
       .keyBy(_.location)
-      .process(new HumidityAlert())
+      .process(HumidityAlert())
 
     humidityAlertStream
       .getSideOutput(OutputTag[String]("humidity increases"))

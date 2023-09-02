@@ -25,7 +25,7 @@ given instantTypeInfo: TypeInformation[Instant] =
 
 class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]:
   override def apply(key: String, window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit =
-    out.collect(s"${key} ${window.getStart} to ${window.getEnd}: ${input}")
+    out.collect(s"$key ${window.getStart} to ${window.getEnd}: $input")
 
 object TumblingWindow:
 
