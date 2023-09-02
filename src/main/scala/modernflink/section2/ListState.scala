@@ -1,31 +1,18 @@
 package modernflink.section2
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.StreamExecutionEnvironment
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.io.Source
-import org.apache.flink.api.common.eventtime.{
-  SerializableTimestampAssigner,
-  WatermarkStrategy
-}
-import org.apache.flink.api.function.{AllWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.windowing.triggers.{
-  CountTrigger,
-  PurgingTrigger
-}
-import org.apache.flink.util.Collector
-
-import java.time.{Duration, Instant}
-import modernflink.model.{BankingEventGenerator, HumidityReading}
-import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
-import org.apache.flink.streaming.api.windowing.time.Time
-import Given.given
+import modernflink.model.HumidityReading
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import collection.JavaConverters.iterableAsScalaIterableConverter
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
+import org.apache.flink.util.Collector
+import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.StreamExecutionEnvironment
+
+import java.time.{Duration, Instant}
+import scala.jdk.CollectionConverters.*
 
 object ListState:
 
@@ -33,6 +20,9 @@ object ListState:
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
+
+  def main(args: Array[String]): Unit =
+    listStateDemo()
 
   private def listStateDemo(): Unit =
     // store all temperature change per location
@@ -69,6 +59,3 @@ object ListState:
       })
     humidityChangeStream.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    listStateDemo()

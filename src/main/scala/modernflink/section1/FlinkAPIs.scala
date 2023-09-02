@@ -1,19 +1,14 @@
 package modernflink.section1
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.*
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import scala.io.Source
 import modernflink.model.UserAction
 import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.datastream.DataStream.Collector
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.util
+import org.apache.flink.util.Collector
+import org.apache.flinkx.api.*
+import org.apache.flinkx.api.serializers.*
 
-class UserActionProcessFunction()
-    extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
+class UserActionProcessFunction() extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
 
   override def processElement(
       value: UserAction,
@@ -22,7 +17,7 @@ class UserActionProcessFunction()
         UserAction,
         (String, String, String)
       ]#Context,
-      out: util.Collector[(String, String, String)]
+      out: Collector[(String, String, String)]
   ): Unit = out.collect((value.action, value.userid, value.name))
 
 object FlinkAPIs:
@@ -54,6 +49,11 @@ object FlinkAPIs:
     userActionStream1.print()
     env.execute()
 
+  def main(args: Array[String]): Unit =
+    //    lambdaDemo()
+    //    processFunctionDemo()
+    richFunctionDemo()
+
   // Rich Function
   def richFunctionDemo(): Unit =
     val userActionStream2: DataStream[(String, String, String)] = userActionData
@@ -71,8 +71,3 @@ object FlinkAPIs:
       })
     userActionStream2.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    //    lambdaDemo()
-    //    processFunctionDemo()
-    richFunctionDemo()

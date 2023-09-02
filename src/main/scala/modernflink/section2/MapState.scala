@@ -1,39 +1,21 @@
 package modernflink.section2
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import scala.io.Source
-import org.apache.flink.api.function.{AllWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.windowing.triggers.{
-  CountTrigger,
-  PurgingTrigger
-}
-import org.apache.flink.util.Collector
-import java.time.{Duration, Instant}
-import modernflink.model.{
-  AboveAverage,
-  Average,
-  BankingEventGenerator,
-  BelowAverage,
-  HumidityLevel,
-  HumidityReading
-}
-import org.apache.flink.streaming.api.windowing.time.Time
-import Given.given
-import org.apache.flink.api.common.state.{
-  ListState,
-  ListStateDescriptor,
-  MapState,
-  MapStateDescriptor
-}
+import modernflink.model.*
+import org.apache.flink.api.common.state.{MapState, MapStateDescriptor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.streaming.api.windowing.assigners.GlobalWindows
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}
+import org.apache.flink.util.Collector
+import org.apache.flinkx.api.*
+import org.apache.flinkx.api.function.{AllWindowFunction, WindowFunction}
+import org.apache.flinkx.api.serializers.*
 
-import collection.JavaConverters.iterableAsScalaIterableConverter
+import java.time.{Duration, Instant}
+import scala.jdk.CollectionConverters.*
+
 case class KeyedHumidityLevel(location: String, humidityLevel: HumidityLevel)
 
 class HumidityByGlobalWindow
@@ -62,6 +44,9 @@ object MapState:
   val env = StreamExecutionEnvironment.getExecutionEnvironment
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
+
+  def main(args: Array[String]): Unit =
+    mapStateDemo()
 
   // Count how many days are below/above average humidity
   def mapStateDemo(): Unit =
@@ -120,6 +105,3 @@ object MapState:
       )
     humidityLevelStream.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    mapStateDemo()

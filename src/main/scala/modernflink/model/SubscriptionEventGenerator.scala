@@ -12,11 +12,9 @@ sealed trait SubscriptionEvent:
   def time: java.time.Instant
   def eventNum: String
 
-case class PaymentEvent(userId: String, time: Instant, eventNum: String)
-    extends SubscriptionEvent
+case class PaymentEvent(userId: String, time: Instant, eventNum: String) extends SubscriptionEvent
 
-case class CancelEvent(userId: String, time: Instant, eventNum: String)
-    extends SubscriptionEvent
+case class CancelEvent(userId: String, time: Instant, eventNum: String) extends SubscriptionEvent
 
 class SubscriptionEventsGenerator(
     sleepSeconds: Int,
@@ -47,18 +45,8 @@ class SubscriptionEventsGenerator(
   private def emitEvents(num: Long) =
     import SubscriptionEventsGenerator.genUser
     val diceRoll = Random.nextInt(10)
-    if diceRoll < 4 then
-      PaymentEvent(
-        genUser,
-        startTime.plusSeconds(num),
-        UUID.randomUUID().toString
-      )
-    else
-      CancelEvent(
-        genUser,
-        startTime.plusSeconds(num),
-        UUID.randomUUID().toString
-      )
+    if diceRoll < 4 then PaymentEvent(genUser, startTime.plusSeconds(num), UUID.randomUUID().toString)
+    else CancelEvent(genUser, startTime.plusSeconds(num), UUID.randomUUID().toString)
 
 object SubscriptionEventsGenerator:
 

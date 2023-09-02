@@ -7,11 +7,11 @@ ThisBuild / resolvers ++= Seq(
 // give the user a nice default project!
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "3.3.0"
-ThisBuild / scalacOptions ++= Seq("-indent", "-rewrite")
+ThisBuild / scalacOptions ++= Seq("-new-syntax", "-deprecation", "-rewrite")
 
 val flinkVersion = "1.17.1"
 val flinkDependencies = Seq(
-  "org.flinkextended" %% "flink-scala-api" % s"${flinkVersion}_1.0.0" % Provided,
+  "org.flinkextended" %% "flink-scala-api" % s"${flinkVersion}_1.1.0" % Provided,
   "org.apache.flink" % "flink-runtime-web" % flinkVersion % Provided,
   "org.apache.flink" % "flink-clients" % flinkVersion,
   "org.apache.flink" % "flink-test-utils" % flinkVersion % Test,

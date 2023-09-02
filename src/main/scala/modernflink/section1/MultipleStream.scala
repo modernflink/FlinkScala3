@@ -1,35 +1,34 @@
 package modernflink.section1
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.*
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import scala.io.Source
 import modernflink.model.{HumidityReading, TemperatureReading}
-import org.apache.flink.api.common.functions.RichMapFunction
-import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.datastream.DataStream.Collector
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.util
+import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.{ConnectedStreams, DataStream, KeyedStream, StreamExecutionEnvironment}
 
 object MultipleStream:
 
-  val env = StreamExecutionEnvironment.getExecutionEnvironment
+  val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
-  val inputFile1 = env.readTextFile("src/main/resources/Humidity.txt")
-  val humidityDataStream = inputFile1
-    .map(HumidityReading.fromString)
-    .keyBy(_.location)
+  val humidityDataStream: KeyedStream[HumidityReading, String] =
+    env
+      .readTextFile("src/main/resources/Humidity.txt")
+      .map(HumidityReading.fromString)
+      .keyBy(_.location)
 
-  val inputFile2 = env.readTextFile("src/main/resources/Temperature.txt")
-  val temperatureDataStream = inputFile2
-    .map(TemperatureReading.fromString)
-    .keyBy(_.location)
+  val temperatureDataStream: KeyedStream[TemperatureReading, String] =
+    env
+      .readTextFile("src/main/resources/Temperature.txt")
+      .map(TemperatureReading.fromString)
+      .keyBy(_.location)
 
-  val inputFile3 = env.readTextFile("src/main/resources/MoreHumidityData.txt")
-  val anotherDataStream = inputFile3
-    .map(HumidityReading.fromString)
-    .keyBy(_.location)
+  val anotherDataStream: KeyedStream[HumidityReading, String] =
+    env
+      .readTextFile("src/main/resources/MoreHumidityData.txt")
+      .map(HumidityReading.fromString)
+      .keyBy(_.location)
+
+  def main(args: Array[String]): Unit =
+    unionExample()
+    connectExample()
 
   // Union: combining two data streams with the same data structure
   def unionExample(): Unit =
@@ -37,14 +36,13 @@ object MultipleStream:
     val unionedHumidityData: DataStream[HumidityReading] = humidityDataStream
       .union(anotherDataStream)
 
-//    unionedHumidityData.print()
+    unionedHumidityData.print()
     env.execute()
 
   // Connect: combining two or more data streams with the same or different data structure
   def connectExample(): Unit =
 
-    val humidityAndTemperatureData
-        : ConnectedStreams[HumidityReading, TemperatureReading] =
+    val humidityAndTemperatureData: ConnectedStreams[HumidityReading, TemperatureReading] =
       humidityDataStream
         .connect(temperatureDataStream)
 
@@ -52,17 +50,13 @@ object MultipleStream:
       humidityAndTemperatureData
         .map(
           (value: HumidityReading) =>
-            value.location -> s"Humidity on ${value
-                .formatTime("yyyy-MM-dd")} is ${value.humidity}",
+            value.location ->
+              s"Humidity on ${value.formatTime("yyyy-MM-dd")} is ${value.humidity}",
           (value: TemperatureReading) =>
-            value.location -> s"Highest and lowest temperature on ${value
-                .formatTime("yyyy-MM-dd")} are ${value.max} and ${value.min}"
+            value.location ->
+              s"Highest and lowest temperature on ${value.formatTime("yyyy-MM-dd")} are ${value.max} and ${value.min}"
         )
         .keyBy(_._1)
 
     outputConnectedStream.print().setParallelism(4)
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    unionExample()
-    connectExample()

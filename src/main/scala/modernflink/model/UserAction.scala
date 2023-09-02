@@ -1,10 +1,11 @@
 package modernflink.model
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import java.time.{Instant, ZoneId, ZonedDateTime}
+import org.apache.flinkx.api.serializers.*
+
+import java.time.{Instant, ZonedDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import org.apache.flink.api.serializers.*
 import scala.util.Try
 
 case class UserAction(
@@ -26,13 +27,14 @@ case class UserAction(
           ZoneId.systemDefault()
         )
       )
+
 object UserAction:
-  def fromString(string: String): UserAction = Try {
-    val Array(timestamp, action, userid, name) = string.split(',')
-    UserAction(timestamp.trim.toLong, action.trim, userid.trim, name.trim)
-  }.toOption.getOrElse(
-    UserAction(0L, "error reading", "error reading", "error reading")
-  )
+  def fromString(string: String): UserAction =
+    Try {
+      val Array(timestamp, action, userid, name) = string.split(',')
+      UserAction(timestamp.trim.toLong, action.trim, userid.trim, name.trim)
+    }.toOption
+      .getOrElse(UserAction(0L, "error reading", "error reading", "error reading"))
 
   given humidityReadingTypeInformation: TypeInformation[UserAction] =
     deriveTypeInformation

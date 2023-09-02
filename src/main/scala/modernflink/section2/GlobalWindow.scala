@@ -1,39 +1,17 @@
 package modernflink.section2
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.StreamExecutionEnvironment
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.io.Source
-import modernflink.model.{
-  AboveAverage,
-  Average,
-  BelowAverage,
-  HumidityLevel,
-  HumidityReading
-}
-import org.apache.flink.api.common.eventtime.{
-  SerializableTimestampAssigner,
-  WatermarkStrategy
-}
-import org.apache.flink.api.common.functions.AggregateFunction
-import org.apache.flink.api.function.WindowFunction
-import org.apache.flink.streaming.api.windowing.assigners.{
-  GlobalWindows,
-  TumblingProcessingTimeWindows
-}
-import org.apache.flink.streaming.api.windowing.triggers.{
-  CountTrigger,
-  PurgingTrigger
-}
+import modernflink.model.*
+import org.apache.flink.streaming.api.windowing.assigners.GlobalWindows
+import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}
 import org.apache.flink.util.Collector
+import org.apache.flinkx.api.function.WindowFunction
+import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.StreamExecutionEnvironment
 
 import java.time.{Duration, Instant}
 
-class GlobalWindowDemo
-    extends WindowFunction[HumidityReading, String, String, GlobalWindow]:
+class GlobalWindowDemo extends WindowFunction[HumidityReading, String, String, GlobalWindow]:
   override def apply(
       key: String,
       window: GlobalWindow,
@@ -42,6 +20,7 @@ class GlobalWindowDemo
   ): Unit =
     val averageByGlobalWindow = input.map(_.humidity).sum / input.size
     val last = input.last
+
     val humidityLevel: HumidityLevel =
       if last.humidity > averageByGlobalWindow then AboveAverage
       else if last.humidity == averageByGlobalWindow then Average
@@ -69,5 +48,5 @@ object GlobalWindow:
     outputGlobalWindowStream.print()
     env.execute()
 
-    def main(args: Array[String]): Unit =
-      averageOutput()
+  def main(args: Array[String]): Unit =
+    averageOutput()

@@ -1,15 +1,11 @@
 package modernflink.section1
 
-import org.apache.flink.api.*
-import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.api.serializers.*
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.util.typeutils.{
-  FieldAccessorFactory,
-  ScalaProductFieldAccessorFactory
-}
+import org.apache.flink.streaming.util.typeutils.{FieldAccessorFactory, ScalaProductFieldAccessorFactory}
+import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.StreamExecutionEnvironment
 import org.slf4j.LoggerFactory
 
 import scala.util.Try

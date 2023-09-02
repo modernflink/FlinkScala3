@@ -1,40 +1,26 @@
 package modernflink.section2
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.StreamExecutionEnvironment
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.io.Source
-import org.apache.flink.api.common.eventtime.{
-  SerializableTimestampAssigner,
-  WatermarkStrategy
-}
-import org.apache.flink.api.function.WindowFunction
+import modernflink.model.BankingEventGenerator
+import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
+import modernflink.section2.Given.given
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.streaming.api.windowing.assigners.{
   GlobalWindows,
   SlidingEventTimeWindows,
   TumblingEventTimeWindows,
   TumblingProcessingTimeWindows
 }
-import org.apache.flink.streaming.api.windowing.triggers.{
-  CountTrigger,
-  PurgingTrigger
-}
-import org.apache.flink.streaming.api.windowing.windows.{
-  GlobalWindow,
-  TimeWindow,
-  Window
-}
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
+import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, TimeWindow, Window}
 import org.apache.flink.util.Collector
+import org.apache.flinkx.api.StreamExecutionEnvironment
+import org.apache.flinkx.api.function.WindowFunction
+import org.apache.flinkx.api.serializers.*
 
 import java.time.{Duration, Instant}
-import modernflink.model.BankingEventGenerator
-import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
-import org.apache.flink.streaming.api.windowing.time.Time
-import Given.given
-class DepositByTumblingWindow
-    extends WindowFunction[Deposit, String, String, TimeWindow]:
+
+class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]:
   override def apply(
       key: String,
       window: TimeWindow,
@@ -66,6 +52,9 @@ object TumblingWindow:
         })
     )
 
+  def main(args: Array[String]): Unit =
+    createTumblingWindowStream()
+
   def createTumblingWindowStream(): Unit =
     val depositByWindowStream = depositData
       .keyBy(_.currency)
@@ -76,6 +65,3 @@ object TumblingWindow:
 
     tumblingWindowStream.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    createTumblingWindowStream()

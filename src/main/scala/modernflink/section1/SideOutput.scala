@@ -1,17 +1,14 @@
 package modernflink.section1
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.*
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.io.Source
 import modernflink.model.{HumidityReading, TemperatureReading}
 import org.apache.flink.api.common.functions.RichMapFunction
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.datastream.DataStream.Collector
-import org.apache.flink.streaming.api.functions.{ProcessFunction}
+import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.apache.flink.util
+import org.apache.flinkx.api.{OutputTag, StreamExecutionEnvironment}
+import org.apache.flinkx.api.serializers.*
 
 class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading]:
   override def processElement(
@@ -19,8 +16,7 @@ class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading]:
       ctx: ProcessFunction[HumidityReading, HumidityReading]#Context,
       out: util.Collector[HumidityReading]
   ): Unit =
-    if value.humidity < 50 then
-      ctx.output(FireAlert.lowHumidity, "Fire Hazard at " + value.location)
+    if value.humidity < 50 then ctx.output(FireAlert.lowHumidity, "Fire Hazard at " + value.location)
     else out.collect(value)
 
 object FireAlert:

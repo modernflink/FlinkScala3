@@ -1,7 +1,7 @@
 package com.example
 
-import org.apache.flink.api.*
-import org.apache.flink.api.serializers.intInfo
+import org.apache.flinkx.api.serializers.intInfo
+import org.apache.flinkx.api.StreamExecutionEnvironment
 
 object TestRun:
   def main(args: Array[String]): Unit =

@@ -1,29 +1,6 @@
 package modernflink.section2
 
-import org.apache.flink.streaming.api.*
-import org.apache.flink.api.{DataStream, OutputTag, StreamExecutionEnvironment}
-import org.apache.flink.api.serializers.*
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.io.Source
-import org.apache.flink.api.function.{AllWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.windowing.triggers.{
-  CountTrigger,
-  PurgingTrigger
-}
-import org.apache.flink.util.Collector
-
-import java.time.{Duration, Instant}
-import modernflink.model.{
-  AboveAverage,
-  Average,
-  BankingEventGenerator,
-  BelowAverage,
-  HumidityLevel,
-  HumidityReading
-}
-import org.apache.flink.streaming.api.windowing.time.Time
-import Given.given
+import modernflink.model.HumidityReading
 import org.apache.flink.api.common.state.{
   ListState,
   ListStateDescriptor,
@@ -32,13 +9,21 @@ import org.apache.flink.api.common.state.{
   ValueState,
   ValueStateDescriptor
 }
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.streaming.api.windowing.assigners.GlobalWindows
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}
+import org.apache.flink.util.Collector
+import org.apache.flinkx.api.{DataStream, OutputTag, StreamExecutionEnvironment}
+import org.apache.flinkx.api.function.{AllWindowFunction, WindowFunction}
+import org.apache.flinkx.api.serializers.*
 
-class HumidityAlert()
-    extends KeyedProcessFunction[String, HumidityReading, String]:
+import java.time.{Duration, Instant}
+
+class HumidityAlert() extends KeyedProcessFunction[String, HumidityReading, String]:
 
   // call .value to get current state
   // call .update to get newValue and override current stat
@@ -91,6 +76,9 @@ object ValueState:
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
 
+  def main(args: Array[String]): Unit =
+    valueStateDemo()
+
   def valueStateDemo(): Unit =
 
     val humidityAlertStream = humidityData
@@ -102,6 +90,3 @@ object ValueState:
       .print()
     humidityAlertStream.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-    valueStateDemo()

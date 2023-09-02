@@ -1,10 +1,11 @@
 package modernflink.model
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import java.time.{Instant, ZoneId, ZonedDateTime}
+import org.apache.flinkx.api.serializers.*
+
+import java.time.{Instant, ZonedDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import org.apache.flink.api.serializers.*
 import scala.util.Try
 
 case class PurchaseHistory(timestamp: Long, userid: String, amount: Int):
@@ -23,7 +24,9 @@ case class PurchaseHistory(timestamp: Long, userid: String, amount: Int):
       )
 
 object PurchaseHistory:
-  def fromString(string: String): PurchaseHistory = Try {
-    val Array(timestamp, userid, amount) = string.split(",")
-    PurchaseHistory(timestamp.trim.toLong, userid.trim, amount.trim.toInt)
-  }.toOption.getOrElse(PurchaseHistory(0L, "error reading", 0))
+  def fromString(string: String): PurchaseHistory =
+    Try {
+      val Array(timestamp, userid, amount) = string.split(",")
+      PurchaseHistory(timestamp.trim.toLong, userid.trim, amount.trim.toInt)
+    }.toOption
+      .getOrElse(PurchaseHistory(0L, "error reading", 0))

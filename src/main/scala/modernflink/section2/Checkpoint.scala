@@ -1,35 +1,21 @@
 package modernflink.section2
 
 import modernflink.model.HumidityReading
-import org.apache.flink.api.{DataStream, OutputTag, StreamExecutionEnvironment}
-import org.apache.flink.api.common.eventtime.{
-  SerializableTimestampAssigner,
-  WatermarkStrategy
-}
-import org.apache.flink.api.common.functions.RichMapFunction
+import org.apache.flinkx.api.{DataStream, OutputTag, StreamExecutionEnvironment}
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.api.serializers.*
+import org.apache.flinkx.api.serializers.*
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.*
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.windowing.assigners.{
-  TumblingEventTimeWindows,
-  TumblingProcessingTimeWindows
-}
+import org.apache.flink.streaming.api.windowing.assigners.{TumblingEventTimeWindows, TumblingProcessingTimeWindows}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util
 import org.apache.flink.util.Collector
 import modernflink.section2.Given.instantTypeInfo
-import org.apache.flink.api.common.state.{
-  CheckpointListener,
-  ValueState,
-  ValueStateDescriptor
-}
-import org.apache.flink.runtime.state.{
-  FunctionInitializationContext,
-  FunctionSnapshotContext
-}
+import org.apache.flink.api.common.state.{CheckpointListener, ValueState, ValueStateDescriptor}
+import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
+import org.apache.flinkx.api.{OutputTag, StreamExecutionEnvironment}
+
 import java.time.{Duration, Instant}
 import scala.io.Source
 object Given:

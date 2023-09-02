@@ -1,28 +1,17 @@
 package modernflink.section2
 
 import modernflink.model.{SubscriptionEvent, SubscriptionEventsGenerator}
-import org.apache.flink.api.StreamExecutionEnvironment
-import org.apache.flink.api.common.eventtime.{
-  SerializableTimestampAssigner,
-  WatermarkStrategy
-}
-import org.apache.flink.api.common.functions.RichMapFunction
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.api.serializers.*
-import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.*
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction
-import org.apache.flink.streaming.api.windowing.assigners.{
-  TumblingEventTimeWindows,
-  TumblingProcessingTimeWindows
-}
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.apache.flink.util
-import org.apache.flink.util.Collector
 import modernflink.section2.Given.instantTypeInfo
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
+import org.apache.flink.configuration.Configuration
+import org.apache.flink.streaming.api.windowing.assigners.{TumblingEventTimeWindows, TumblingProcessingTimeWindows}
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.util.Collector
+import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.StreamExecutionEnvironment
 
 import java.time.{Duration, Instant}
-import scala.io.Source
+
 object EventTimeProcessingTime:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -60,6 +49,10 @@ object EventTimeProcessingTime:
 
     eventStream1.print()
     env.execute()
+
+  def main(args: Array[String]): Unit =
+//    processingTimeDemo()
+    eventTimeDemo()
 
   // Event Time
   def eventTimeDemo(): Unit =
@@ -103,7 +96,3 @@ object EventTimeProcessingTime:
 
     userActionStream2.print()
     env.execute()
-
-  def main(args: Array[String]): Unit =
-//    processingTimeDemo()
-    eventTimeDemo()
