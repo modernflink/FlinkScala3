@@ -12,10 +12,18 @@ import org.apache.flink.streaming.api.datastream.DataStream.Collector
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.util
 
-class UserActionProcessFunction() extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
+class UserActionProcessFunction()
+    extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
 
-  override def processElement(value: UserAction, ctx: KeyedProcessFunction[String, UserAction, (String, String, String)]#Context,
-                              out: util.Collector[(String, String, String)]): Unit = out.collect((value.action, value.userid, value.name))
+  override def processElement(
+      value: UserAction,
+      ctx: KeyedProcessFunction[
+        String,
+        UserAction,
+        (String, String, String)
+      ]#Context,
+      out: util.Collector[(String, String, String)]
+  ): Unit = out.collect((value.action, value.userid, value.name))
 
 object FlinkAPIs:
 
@@ -29,9 +37,10 @@ object FlinkAPIs:
 
     // Lambda Function
 
-    val userActionLambdaFunction: DataStream[(String, String, String)] = userActionData
-      .keyBy(_.action)
-      .map(data => (data.action, data.userid, data.name))
+    val userActionLambdaFunction: DataStream[(String, String, String)] =
+      userActionData
+        .keyBy(_.action)
+        .map(data => (data.action, data.userid, data.name))
 
     userActionLambdaFunction.print()
     env.execute()
@@ -57,11 +66,9 @@ object FlinkAPIs:
         override def open(parameters: Configuration): Unit =
           println("MapFunction processing starts")
 
-
         override def close(): Unit =
           println("MapFunction Processing ends")
-      }
-      )
+      })
     userActionStream2.print()
     env.execute()
 
@@ -69,4 +76,3 @@ object FlinkAPIs:
     //    lambdaDemo()
     //    processFunctionDemo()
     richFunctionDemo()
-

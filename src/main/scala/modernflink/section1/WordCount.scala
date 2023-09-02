@@ -6,7 +6,10 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.serializers.*
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.util.typeutils.{FieldAccessorFactory, ScalaProductFieldAccessorFactory}
+import org.apache.flink.streaming.util.typeutils.{
+  FieldAccessorFactory,
+  ScalaProductFieldAccessorFactory
+}
 import org.slf4j.LoggerFactory
 
 import scala.util.Try
@@ -22,7 +25,8 @@ case class Pair(string: String, int: Int)
   import scala.collection.Iterable
   val log = LoggerFactory.getLogger(classOf[FieldAccessorFactory])
   import org.apache.flink.streaming.util.typeutils.*
-  val scalaProductFieldAccessorFactory = ScalaProductFieldAccessorFactory.load(log)
+  val scalaProductFieldAccessorFactory =
+    ScalaProductFieldAccessorFactory.load(log)
   require(scalaProductFieldAccessorFactory != null)
   val conf = Configuration()
   conf.setString("state.savepoints.dir", "file:///tmp/savepoints")
@@ -34,16 +38,15 @@ case class Pair(string: String, int: Int)
   conf.setString("execution.checkpointing.min-pause", "10s")
   conf.setString("state.backend", "filesystem")
 
-    val env = Try(
-      StreamExecutionEnvironment.getExecutionEnvironment
-    ).getOrElse(StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf))
+  val env = Try(
+    StreamExecutionEnvironment.getExecutionEnvironment
+  ).getOrElse(StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf))
   val text = env.fromElements(
     "To be, or not to be,--that is the question:--",
     "Whether 'tis nobler in the mind to suffer",
     "The slings and arrows of outrageous fortune",
     "Or to take arms against a sea of troubles,"
   )
-
 
   text
     .flatMap(_.toLowerCase.split("\\W+"))

@@ -13,11 +13,13 @@ import java.time.Instant
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   // 1. stream from a collection
-  val testStreamOne = env.fromCollection(Array[HumidityReading](
-    HumidityReading("Flagstaff", 1688241216, 0.59),
-    HumidityReading("Phoenix", 1688241216, 0.47),
-    HumidityReading("Tucson", 1685172115, 0.44)
-  ))
+  val testStreamOne = env.fromCollection(
+    Array[HumidityReading](
+      HumidityReading("Flagstaff", 1688241216, 0.59),
+      HumidityReading("Phoenix", 1688241216, 0.47),
+      HumidityReading("Tucson", 1685172115, 0.44)
+    )
+  )
 
   testStreamOne.print("OutputStream1").setParallelism(3)
 
@@ -31,7 +33,8 @@ import java.time.Instant
 //  testStreamThree.print("OutputStream3")
 
   // 4. read from a data generator
-  given instantTypeInfo: TypeInformation[Instant] = TypeInformation.of(classOf[Instant])
+  given instantTypeInfo: TypeInformation[Instant] =
+    TypeInformation.of(classOf[Instant])
 
   val testStreamFour = env.addSource(
     SubscriptionEventsGenerator(

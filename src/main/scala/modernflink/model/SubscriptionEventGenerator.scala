@@ -12,14 +12,16 @@ sealed trait SubscriptionEvent:
   def time: java.time.Instant
   def eventNum: String
 
-case class PaymentEvent(userId: String, time: Instant, eventNum: String) extends SubscriptionEvent
+case class PaymentEvent(userId: String, time: Instant, eventNum: String)
+    extends SubscriptionEvent
 
-case class CancelEvent(userId: String, time: Instant, eventNum: String) extends SubscriptionEvent
+case class CancelEvent(userId: String, time: Instant, eventNum: String)
+    extends SubscriptionEvent
 
 class SubscriptionEventsGenerator(
-                                   sleepSeconds: Int,
-                                   startTime: Instant
-                                 ) extends SourceFunction[SubscriptionEvent]:
+    sleepSeconds: Int,
+    startTime: Instant
+) extends SourceFunction[SubscriptionEvent]:
   private var running = true
   private var maxEvents = 10
 
@@ -31,10 +33,13 @@ class SubscriptionEventsGenerator(
     running = false
 
   @tailrec
-  private def run(start: Long, ctx: SourceFunction.SourceContext[SubscriptionEvent]): Unit =
+  private def run(
+      start: Long,
+      ctx: SourceFunction.SourceContext[SubscriptionEvent]
+  ): Unit =
     if running && maxEvents > 0 then
       maxEvents -= 1
-      ctx.collect(emitEvents(start)) //.collect emits elements from the source
+      ctx.collect(emitEvents(start)) // .collect emits elements from the source
       Thread.sleep(sleepSeconds * 1000) // delay emitting events
       run(start + 1, ctx)
 
@@ -43,15 +48,33 @@ class SubscriptionEventsGenerator(
     import SubscriptionEventsGenerator.genUser
     val diceRoll = Random.nextInt(10)
     if diceRoll < 4 then
-      PaymentEvent(genUser, startTime.plusSeconds(num), UUID.randomUUID().toString)
+      PaymentEvent(
+        genUser,
+        startTime.plusSeconds(num),
+        UUID.randomUUID().toString
+      )
     else
-      CancelEvent(genUser, startTime.plusSeconds(num), UUID.randomUUID().toString)
-
+      CancelEvent(
+        genUser,
+        startTime.plusSeconds(num),
+        UUID.randomUUID().toString
+      )
 
 object SubscriptionEventsGenerator:
 
   val users: Seq[String] =
-    Seq("Rob", "David", "Charlie", "Frank", "Peggy", "Max", "David", "Emma", "Faye", "Christie", "Joan")
+    Seq(
+      "Rob",
+      "David",
+      "Charlie",
+      "Frank",
+      "Peggy",
+      "Max",
+      "David",
+      "Emma",
+      "Faye",
+      "Christie",
+      "Joan"
+    )
 
   def genUser: String = users(scala.util.Random.nextInt(users.length))
-

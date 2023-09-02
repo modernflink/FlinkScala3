@@ -9,10 +9,12 @@ import scala.util.Try
 
 case class PurchaseHistory(timestamp: Long, userid: String, amount: Int):
 
-  override def toString: String = s"PurchaseHistory(${formatTime()}, $userid, $amount)"
+  override def toString: String =
+    s"PurchaseHistory(${formatTime()}, $userid, $amount)"
 
   def formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String =
-    DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
+    DateTimeFormatter
+      .ofPattern(format, Locale.ENGLISH)
       .format(
         ZonedDateTime.ofInstant(
           Instant.ofEpochSecond(timestamp),
@@ -21,8 +23,7 @@ case class PurchaseHistory(timestamp: Long, userid: String, amount: Int):
       )
 
 object PurchaseHistory:
-  def fromString(string: String): PurchaseHistory = Try{
+  def fromString(string: String): PurchaseHistory = Try {
     val Array(timestamp, userid, amount) = string.split(",")
     PurchaseHistory(timestamp.trim.toLong, userid.trim, amount.trim.toInt)
   }.toOption.getOrElse(PurchaseHistory(0L, "error reading", 0))
-

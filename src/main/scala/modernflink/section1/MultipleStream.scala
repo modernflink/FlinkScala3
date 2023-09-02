@@ -43,17 +43,22 @@ object MultipleStream:
   // Connect: combining two or more data streams with the same or different data structure
   def connectExample(): Unit =
 
-    val humidityAndTemperatureData: ConnectedStreams[HumidityReading, TemperatureReading] =
+    val humidityAndTemperatureData
+        : ConnectedStreams[HumidityReading, TemperatureReading] =
       humidityDataStream
         .connect(temperatureDataStream)
 
-    val outputConnectedStream: DataStream[(String, String)] = humidityAndTemperatureData
-      .map(
-        (value: HumidityReading) => value.location -> s"Humidity on ${value.formatTime("yyyy-MM-dd")} is ${value.humidity}",
-        (value: TemperatureReading) => value.location -> s"Highest and lowest temperature on ${value.formatTime("yyyy-MM-dd")} are ${value.max} and ${value.min}"
-      )
-      .keyBy(_._1)
-
+    val outputConnectedStream: DataStream[(String, String)] =
+      humidityAndTemperatureData
+        .map(
+          (value: HumidityReading) =>
+            value.location -> s"Humidity on ${value
+                .formatTime("yyyy-MM-dd")} is ${value.humidity}",
+          (value: TemperatureReading) =>
+            value.location -> s"Highest and lowest temperature on ${value
+                .formatTime("yyyy-MM-dd")} are ${value.max} and ${value.min}"
+        )
+        .keyBy(_._1)
 
     outputConnectedStream.print().setParallelism(4)
     env.execute()

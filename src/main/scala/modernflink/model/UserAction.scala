@@ -7,13 +7,19 @@ import java.util.Locale
 import org.apache.flink.api.serializers.*
 import scala.util.Try
 
+case class UserAction(
+    timestamp: Long,
+    action: String,
+    userid: String,
+    name: String
+):
 
-case class UserAction(timestamp: Long, action: String, userid: String, name: String):
-
-  override def toString: String = s"UserAction(${formatTime()}, $action, $userid, $name)"
+  override def toString: String =
+    s"UserAction(${formatTime()}, $action, $userid, $name)"
 
   def formatTime(format: String = "yyyy-MM-dd"): String =
-    DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
+    DateTimeFormatter
+      .ofPattern(format, Locale.ENGLISH)
       .format(
         ZonedDateTime.ofInstant(
           Instant.ofEpochSecond(timestamp),
@@ -21,10 +27,12 @@ case class UserAction(timestamp: Long, action: String, userid: String, name: Str
         )
       )
 object UserAction:
-    def fromString(string: String): UserAction = Try {
-      val Array(timestamp, action, userid, name) = string.split(',')
-      UserAction(timestamp.trim.toLong, action.trim, userid.trim, name.trim)
-    }.toOption.getOrElse(UserAction(0L, "error reading", "error reading", "error reading"))
+  def fromString(string: String): UserAction = Try {
+    val Array(timestamp, action, userid, name) = string.split(',')
+    UserAction(timestamp.trim.toLong, action.trim, userid.trim, name.trim)
+  }.toOption.getOrElse(
+    UserAction(0L, "error reading", "error reading", "error reading")
+  )
 
-    given humidityReadingTypeInformation: TypeInformation[UserAction] = deriveTypeInformation
-  
+  given humidityReadingTypeInformation: TypeInformation[UserAction] =
+    deriveTypeInformation

@@ -23,15 +23,15 @@ val flinkDependencies = Seq(
 lazy val root = (project in file(".")).settings(
   name := "my-flink-scala-proj",
   assembly / mainClass := Some("com.example.wordCount"),
-  libraryDependencies ++= flinkDependencies,
+  libraryDependencies ++= flinkDependencies
 )
 
 //assembly / assemblyOption  := (assembly / assemblyOption).value.withIncludeScala(true)
 
 ThisBuild / assemblyMergeStrategy := {
-  case "application.conf"                            => MergeStrategy.concat
-  case "META-INF/io.netty.versions.properties"                => MergeStrategy.first
-  case ".flink-runtime.version.properties"                => MergeStrategy.first
+  case "application.conf"                      => MergeStrategy.concat
+  case "META-INF/io.netty.versions.properties" => MergeStrategy.first
+  case ".flink-runtime.version.properties"     => MergeStrategy.first
   case x =>
     val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -51,14 +51,14 @@ Compile / run / fork := true
 Global / cancelable := true
 
 assembly / assemblyExcludedJars := {
-      val cp = (assembly / fullClasspath).value
-      cp filter { f =>
-        Set(
-          "scala-asm-9.3.0-scala-1.jar",
-          "interface-1.0.4.jar",
-          "scala-compiler-2.13.6.jar",
-        ).contains(
-          f.data.getName
-        )
-      }
-    }
+  val cp = (assembly / fullClasspath).value
+  cp filter { f =>
+    Set(
+      "scala-asm-9.3.0-scala-1.jar",
+      "interface-1.0.4.jar",
+      "scala-compiler-2.13.6.jar"
+    ).contains(
+      f.data.getName
+    )
+  }
+}

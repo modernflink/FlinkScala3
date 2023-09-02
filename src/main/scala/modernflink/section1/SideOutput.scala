@@ -14,27 +14,31 @@ import org.apache.flink.streaming.api.functions.{ProcessFunction}
 import org.apache.flink.util
 
 class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading]:
-  override def processElement(value: HumidityReading, ctx: ProcessFunction[HumidityReading, HumidityReading]#Context, out: util.Collector[HumidityReading]): Unit =
+  override def processElement(
+      value: HumidityReading,
+      ctx: ProcessFunction[HumidityReading, HumidityReading]#Context,
+      out: util.Collector[HumidityReading]
+  ): Unit =
     if value.humidity < 50 then
       ctx.output(FireAlert.lowHumidity, "Fire Hazard at " + value.location)
-    else
-      out.collect(value)
+    else out.collect(value)
 
 object FireAlert:
   lazy val lowHumidity = new OutputTag[String]("Fire Hazard")
 
 object SideOutput:
 
-    def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit =
 
-      val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-      val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
-      val humidityDataStream = inputFile.map(HumidityReading.fromString)
+    val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
+    val humidityDataStream = inputFile.map(HumidityReading.fromString)
 
-      val outputProcessedStream = humidityDataStream.process(new FireAlert())
-      val sideOutputStream = outputProcessedStream.getSideOutput(FireAlert.lowHumidity)
+    val outputProcessedStream = humidityDataStream.process(new FireAlert())
+    val sideOutputStream =
+      outputProcessedStream.getSideOutput(FireAlert.lowHumidity)
 
-      outputProcessedStream.print("Output Stream")
-      sideOutputStream.print("Side Output Stream")
-      env.execute()
+    outputProcessedStream.print("Output Stream")
+    sideOutputStream.print("Side Output Stream")
+    env.execute()

@@ -9,10 +9,13 @@ import scala.io.Source
 import org.apache.flink.util.Collector
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
-import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema, SimpleStringSchema}
+import org.apache.flink.api.common.serialization.{
+  DeserializationSchema,
+  SerializationSchema,
+  SimpleStringSchema
+}
 import org.apache.flink.connector.kafka.source.KafkaSource
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
-
 
 object MyKafkaSource:
 
@@ -20,7 +23,8 @@ object MyKafkaSource:
 
   // read string from Kafka
   def readFromKafka(): Unit =
-    val kafkaSource = KafkaSource.builder[String]()
+    val kafkaSource = KafkaSource
+      .builder[String]()
       .setBootstrapServers("localhost:9092")
       .setTopics("humidity-reading")
       .setGroupId("humidity-group")
@@ -29,7 +33,8 @@ object MyKafkaSource:
       .setValueOnlyDeserializer(new SimpleStringSchema())
       .build()
 
-    val kafkaInput: DataStream[String] = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka")
+    val kafkaInput: DataStream[String] =
+      env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka")
 
     kafkaInput.print("Read from Kafka")
     env.execute()
@@ -46,10 +51,12 @@ object MyKafkaSource:
 
       override def isEndOfStream(nextElement: HumidityReading): Boolean = false
 
-      override def getProducedType: TypeInformation[HumidityReading] = implicitly[TypeInformation[HumidityReading]]
+      override def getProducedType: TypeInformation[HumidityReading] =
+        implicitly[TypeInformation[HumidityReading]]
 
     def readCustomDataFromKafka(): Unit =
-      val kafkaSource = KafkaSource.builder[HumidityReading]()
+      val kafkaSource = KafkaSource
+        .builder[HumidityReading]()
         .setBootstrapServers("localhost:9092")
         .setTopics("humidity-reading")
         .setGroupId("humidity-group")
@@ -57,7 +64,8 @@ object MyKafkaSource:
         .setValueOnlyDeserializer(new CustomDeserializer())
         .build()
 
-      val kafkaInput: DataStream[HumidityReading] = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka")
+      val kafkaInput: DataStream[HumidityReading] =
+        env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka")
 
       kafkaInput.print("Read Custom Data From Kafka")
       env.execute()

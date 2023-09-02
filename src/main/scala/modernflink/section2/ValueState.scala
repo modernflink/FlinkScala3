@@ -7,20 +7,38 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 
 import scala.io.Source
 import org.apache.flink.api.function.{AllWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
+import org.apache.flink.streaming.api.windowing.triggers.{
+  CountTrigger,
+  PurgingTrigger
+}
 import org.apache.flink.util.Collector
 
 import java.time.{Duration, Instant}
-import modernflink.model.{AboveAverage, Average, BankingEventGenerator, BelowAverage, HumidityLevel, HumidityReading}
+import modernflink.model.{
+  AboveAverage,
+  Average,
+  BankingEventGenerator,
+  BelowAverage,
+  HumidityLevel,
+  HumidityReading
+}
 import org.apache.flink.streaming.api.windowing.time.Time
 import Given.given
-import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapState, MapStateDescriptor, ValueState, ValueStateDescriptor}
+import org.apache.flink.api.common.state.{
+  ListState,
+  ListStateDescriptor,
+  MapState,
+  MapStateDescriptor,
+  ValueState,
+  ValueStateDescriptor
+}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.streaming.api.windowing.assigners.GlobalWindows
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}
 
-class HumidityAlert() extends KeyedProcessFunction[String, HumidityReading, String]:
+class HumidityAlert()
+    extends KeyedProcessFunction[String, HumidityReading, String]:
 
   // call .value to get current state
   // call .update to get newValue and override current stat
@@ -29,10 +47,18 @@ class HumidityAlert() extends KeyedProcessFunction[String, HumidityReading, Stri
 
   // initialize state
   override def open(parameters: Configuration): Unit =
-    lastReading = getRuntimeContext.getState(new ValueStateDescriptor[Double]("lastReading", classOf[Double]))
-    currentTime = getRuntimeContext.getState(new ValueStateDescriptor[Long]("currentTime", classOf[Long]))
+    lastReading = getRuntimeContext.getState(
+      new ValueStateDescriptor[Double]("lastReading", classOf[Double])
+    )
+    currentTime = getRuntimeContext.getState(
+      new ValueStateDescriptor[Long]("currentTime", classOf[Long])
+    )
 
-  override def processElement(value: HumidityReading, ctx: KeyedProcessFunction[String, HumidityReading, String]#Context, out: Collector[String]): Unit =
+  override def processElement(
+      value: HumidityReading,
+      ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
+      out: Collector[String]
+  ): Unit =
 
     val previousHumidity = lastReading.value()
 
@@ -42,13 +68,22 @@ class HumidityAlert() extends KeyedProcessFunction[String, HumidityReading, Stri
       val customTimer = ctx.timerService().currentProcessingTime() + 60
       ctx.timerService().registerProcessingTimeTimer(customTimer)
       currentTime.update(customTimer)
-      ctx.output(OutputTag[String]("humidity increases"),s"${ctx.getCurrentKey} humidity increased from - ${lastReading.value()} to ${value.humidity} by ${value.humidity-lastReading.value()}")
-    else if value.humidity < previousHumidity || (previousHumidity - value.humidity) == value.humidity then
+      ctx.output(
+        OutputTag[String]("humidity increases"),
+        s"${ctx.getCurrentKey} humidity increased from - ${lastReading
+            .value()} to ${value.humidity} by ${value.humidity - lastReading.value()}"
+      )
+    else if value.humidity < previousHumidity || (previousHumidity - value.humidity) == value.humidity
+    then
       ctx.timerService().deleteProcessingTimeTimer(currentTimer)
       currentTime.clear()
     lastReading.update(value.humidity)
 
-  override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[String, HumidityReading, String]#OnTimerContext, out: Collector[String]): Unit =
+  override def onTimer(
+      timestamp: Long,
+      ctx: KeyedProcessFunction[String, HumidityReading, String]#OnTimerContext,
+      out: Collector[String]
+  ): Unit =
     out.collect(s"timer ${ctx.getCurrentKey} - Humidity increases")
 
 object ValueState:
@@ -62,7 +97,9 @@ object ValueState:
       .keyBy(_.location)
       .process(new HumidityAlert())
 
-    humidityAlertStream.getSideOutput(OutputTag[String]("humidity increases")).print()
+    humidityAlertStream
+      .getSideOutput(OutputTag[String]("humidity increases"))
+      .print()
     humidityAlertStream.print()
     env.execute()
 
