@@ -7,7 +7,7 @@ import scala.util.Try
 
 case class HumidityReading(location: String, timestamp: Long, humidity: Double):
 
-  def sinkOutput: String = s"${location}, ${timestamp}, ${humidity}"
+  def sinkOutput: String = s"$location, $timestamp, $humidity"
 
   override def toString: String =
     s"HumidityReading($location, ${formatTime()}, $humidity)"
