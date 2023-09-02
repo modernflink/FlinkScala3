@@ -1,6 +1,6 @@
 package modernflink.section2
 
-import modernflink.model.SubscriptionEventGenerator.{SubscriptionEvent, SubscriptionEventsGenerator}
+import modernflink.model.{SubscriptionEvent, SubscriptionEventsGenerator}
 import org.apache.flink.api.StreamExecutionEnvironment
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.functions.RichMapFunction
@@ -14,6 +14,7 @@ import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util
 import org.apache.flink.util.Collector
 import modernflink.section2.Given.instantTypeInfo
+
 import java.time.{Duration, Instant}
 import scala.io.Source
 object EventTimeProcessingTime {
