@@ -1,8 +1,5 @@
 package modernflink.model
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flinkx.api.serializers.*
-
 import java.time.{Instant, ZonedDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -35,8 +32,4 @@ object HumidityReading:
         timestamp.trim.toLong,
         humidity.trim.toDouble
       )
-    }.toOption
-      .getOrElse(HumidityReading("error reading", 0L, 0.0))
-
-  given humidityReadingTypeInformation: TypeInformation[HumidityReading] =
-    deriveTypeInformation
+    }.getOrElse(HumidityReading("error reading", 0L, 0.0))

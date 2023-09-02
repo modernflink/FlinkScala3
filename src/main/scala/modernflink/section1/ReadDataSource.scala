@@ -15,7 +15,7 @@ import java.time.Instant
 
   // 1. stream from a collection
   val testStreamOne = env.fromCollection(
-    Seq[HumidityReading](
+    Seq(
       HumidityReading("Flagstaff", 1688241216, 0.59),
       HumidityReading("Phoenix", 1688241216, 0.47),
       HumidityReading("Tucson", 1685172115, 0.44)
