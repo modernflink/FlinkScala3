@@ -14,12 +14,12 @@ import org.apache.flink.connector.kafka.source.KafkaSource
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
 
 
-object MyKafkaSource {
+object MyKafkaSource:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   // read string from Kafka
-  def readFromKafka(): Unit = {
+  def readFromKafka(): Unit =
     val kafkaSource = KafkaSource.builder[String]()
       .setBootstrapServers("localhost:9092")
       .setTopics("humidity-reading")
@@ -33,10 +33,9 @@ object MyKafkaSource {
 
     kafkaInput.print("Read from Kafka")
     env.execute()
-  }
 
-    class CustomDeserializer extends DeserializationSchema[HumidityReading] {
-      override def deserialize(message: Array[Byte]): HumidityReading = {
+    class CustomDeserializer extends DeserializationSchema[HumidityReading]:
+      override def deserialize(message: Array[Byte]): HumidityReading =
         // format
         val inputData = new String(message)
         val token = inputData.split(",")
@@ -44,14 +43,12 @@ object MyKafkaSource {
         val timestamp = token(1)
         val humidity = token(2)
         HumidityReading(location, timestamp.trim.toLong, humidity.trim.toDouble)
-      }
 
       override def isEndOfStream(nextElement: HumidityReading): Boolean = false
 
       override def getProducedType: TypeInformation[HumidityReading] = implicitly[TypeInformation[HumidityReading]]
-    }
 
-    def readCustomDataFromKafka(): Unit = {
+    def readCustomDataFromKafka(): Unit =
       val kafkaSource = KafkaSource.builder[HumidityReading]()
         .setBootstrapServers("localhost:9092")
         .setTopics("humidity-reading")
@@ -64,10 +61,7 @@ object MyKafkaSource {
 
       kafkaInput.print("Read Custom Data From Kafka")
       env.execute()
-    }
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]): Unit =
       readCustomDataFromKafka()
       readFromKafka()
-    }
-}

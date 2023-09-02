@@ -29,7 +29,7 @@ object EventTimeProcessingTime {
 
 
   // Processing Time
-  def processingTimeDemo(): Unit = {
+  def processingTimeDemo(): Unit =
 
     val eventStream1 = subscriptionEvent
       .keyBy(_.userId)
@@ -46,10 +46,9 @@ object EventTimeProcessingTime {
 
     eventStream1.print()
     env.execute()
-  }
 
   // Event Time
-  def eventTimeDemo(): Unit = {
+  def eventTimeDemo(): Unit =
     val withWatermarks = subscriptionEvent
       .assignTimestampsAndWatermarks(
         WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(10))
@@ -76,10 +75,8 @@ object EventTimeProcessingTime {
 
     userActionStream2.print()
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
 //    processingTimeDemo()
     eventTimeDemo()
-  }
 }

@@ -6,13 +6,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import org.apache.flink.api.serializers.*
 import scala.util.Try
-case class HumidityReading(location: String, timestamp: Long, humidity: Double) {
+case class HumidityReading(location: String, timestamp: Long, humidity: Double):
   
   def sinkOutput: String =  s"${location}, ${timestamp}, ${humidity}"
 
   override def toString: String = s"HumidityReading($location, ${formatTime()}, $humidity)"
 
-  def formatTime(format: String = "yyyy-MM-dd"): String = {
+  def formatTime(format: String = "yyyy-MM-dd"): String =
     DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
       .format(
         ZonedDateTime.ofInstant(
@@ -20,8 +20,6 @@ case class HumidityReading(location: String, timestamp: Long, humidity: Double) 
           ZoneId.systemDefault()
         )
       )
-  }
-}
 
 object HumidityReading:
 

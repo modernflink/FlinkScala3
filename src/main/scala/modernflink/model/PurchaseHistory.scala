@@ -7,11 +7,11 @@ import java.util.Locale
 import org.apache.flink.api.serializers.*
 import scala.util.Try
 
-case class PurchaseHistory(timestamp: Long, userid: String, amount: Int) {
+case class PurchaseHistory(timestamp: Long, userid: String, amount: Int):
 
   override def toString: String = s"PurchaseHistory(${formatTime()}, $userid, $amount)"
 
-  def formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String = {
+  def formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String =
     DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
       .format(
         ZonedDateTime.ofInstant(
@@ -19,13 +19,10 @@ case class PurchaseHistory(timestamp: Long, userid: String, amount: Int) {
           ZoneId.systemDefault()
         )
       )
-  }
-}
 
-object PurchaseHistory {
+object PurchaseHistory:
   def fromString(string: String): PurchaseHistory = Try{
     val Array(timestamp, userid, amount) = string.split(",")
     PurchaseHistory(timestamp.trim.toLong, userid.trim, amount.trim.toInt)
   }.toOption.getOrElse(PurchaseHistory(0L, "error reading", 0))
 
-}

@@ -20,12 +20,10 @@ import org.apache.flink.streaming.api.windowing.time.Time
 import Given.given
 
 
-class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWindow]{
-  override def apply(window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit = {
+class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWindow]:
+  override def apply(window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit =
     out.collect(s"${window.getStart} to ${window.getEnd}: ${input}")
-  }
-}
-object SlidingWindow {
+object SlidingWindow:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -40,7 +38,7 @@ object SlidingWindow {
         })
     )
 
-  def createSlidingWindowStream(): Unit = {
+  def createSlidingWindowStream(): Unit =
     val depositByWindowStream = depositData
       .windowAll(SlidingEventTimeWindows.of(Time.milliseconds(200), Time.milliseconds(100)))
 
@@ -48,9 +46,6 @@ object SlidingWindow {
 
     slidingWindowStream.print()
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     createSlidingWindowStream()
-  }
-}

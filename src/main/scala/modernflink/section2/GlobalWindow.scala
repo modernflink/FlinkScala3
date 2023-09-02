@@ -17,31 +17,27 @@ import org.apache.flink.util.Collector
 
 import java.time.{Duration, Instant}
 
-class GlobalWindowDemo extends WindowFunction[HumidityReading, String, String, GlobalWindow]{
-  override def apply(key: String, window: GlobalWindow, input: Iterable[HumidityReading], out: Collector[String]): Unit = {
+class GlobalWindowDemo extends WindowFunction[HumidityReading, String, String, GlobalWindow]:
+  override def apply(key: String, window: GlobalWindow, input: Iterable[HumidityReading], out: Collector[String]): Unit =
     val averageByGlobalWindow = input.map(_.humidity).sum / input.size
     val last = input.last
-    val humidityLevel: HumidityLevel = {
-      if last.humidity > averageByGlobalWindow then {
+    val humidityLevel: HumidityLevel =
+      if last.humidity > averageByGlobalWindow then
         AboveAverage
-      } else if last.humidity == averageByGlobalWindow then {
+      else if last.humidity == averageByGlobalWindow then
         Average
-      } else {
+      else
         BelowAverage
-      }
-    }
     out.collect(s"$key - ${input.map(_.timestamp)} - $averageByGlobalWindow - $last - $humidityLevel")
-  }
-}
 
-object GlobalWindow {
+object GlobalWindow:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
 
-  def averageOutput(): Unit = {
+  def averageOutput(): Unit =
     val outputGlobalWindowStream = humidityData
       .keyBy(_.location)
       .window(GlobalWindows.create())
@@ -50,9 +46,6 @@ object GlobalWindow {
 
     outputGlobalWindowStream.print()
     env.execute()
-  }
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]): Unit =
     averageOutput()
-    }
-}

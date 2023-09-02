@@ -18,13 +18,11 @@ import modernflink.model.BankingEventGenerator
 import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
 import org.apache.flink.streaming.api.windowing.time.Time
 import Given.given
-class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]{
-  override def apply(key: String, window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit = {
+class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]:
+  override def apply(key: String, window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit =
     out.collect(s"${key} ${window.getStart} to ${window.getEnd}: ${input}")
-  }
-}
 
-object TumblingWindow {
+object TumblingWindow:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -39,7 +37,7 @@ object TumblingWindow {
       })
   )
 
-  def createTumblingWindowStream(): Unit = {
+  def createTumblingWindowStream(): Unit =
     val depositByWindowStream = depositData
       .keyBy(_.currency)
       .window(TumblingEventTimeWindows.of(Time.seconds(5)))
@@ -48,9 +46,6 @@ object TumblingWindow {
 
     tumblingWindowStream.print()
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     createTumblingWindowStream()
-  }
-}

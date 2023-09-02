@@ -12,7 +12,7 @@ import org.apache.flink.streaming.api.datastream.DataStream.Collector
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.util
 
-object MultipleStream {
+object MultipleStream:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -32,17 +32,16 @@ object MultipleStream {
     .keyBy(_.location)
 
   // Union: combining two data streams with the same data structure
-  def unionExample(): Unit = {
+  def unionExample(): Unit =
 
     val unionedHumidityData: DataStream[HumidityReading] = humidityDataStream
       .union(anotherDataStream)
 
 //    unionedHumidityData.print()
     env.execute()
-  }
 
   // Connect: combining two or more data streams with the same or different data structure
-  def connectExample(): Unit = {
+  def connectExample(): Unit =
 
     val humidityAndTemperatureData: ConnectedStreams[HumidityReading, TemperatureReading] =
       humidityDataStream
@@ -58,10 +57,7 @@ object MultipleStream {
 
     outputConnectedStream.print().setParallelism(4)
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     unionExample()
     connectExample()
-  }
-}

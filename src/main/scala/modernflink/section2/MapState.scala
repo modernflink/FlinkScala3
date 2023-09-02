@@ -21,31 +21,27 @@ import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}
 import collection.JavaConverters.iterableAsScalaIterableConverter
   case class KeyedHumidityLevel(location: String, humidityLevel: HumidityLevel)
 
-  class HumidityByGlobalWindow extends WindowFunction[HumidityReading, KeyedHumidityLevel, String, GlobalWindow] {
-    override def apply(key: String, window: GlobalWindow, unsorted: Iterable[HumidityReading], out: Collector[KeyedHumidityLevel]): Unit = {
+  class HumidityByGlobalWindow extends WindowFunction[HumidityReading, KeyedHumidityLevel, String, GlobalWindow]:
+    override def apply(key: String, window: GlobalWindow, unsorted: Iterable[HumidityReading], out: Collector[KeyedHumidityLevel]): Unit =
       val input = unsorted.toIndexedSeq.sortBy(_.timestamp)
       val averageByGlobalWindow = input.map(_.humidity).sum / input.size
       val last = input.last
-      val humidityLevel: HumidityLevel = {
-        if last.humidity > averageByGlobalWindow then {
+      val humidityLevel: HumidityLevel =
+        if last.humidity > averageByGlobalWindow then
           AboveAverage
-        } else if last.humidity == averageByGlobalWindow then {
+        else if last.humidity == averageByGlobalWindow then
           Average
-        } else {
+        else
           BelowAverage
-        }
-      }
       out.collect(KeyedHumidityLevel(key, humidityLevel))
-    }
-  }
 
-object MapState {
+object MapState:
   val env = StreamExecutionEnvironment.getExecutionEnvironment
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
 
   // Count how many days are below/above average humidity
-  def mapStateDemo(): Unit = {
+  def mapStateDemo(): Unit =
     val humidityLevelStream: DataStream[KeyedHumidityLevel] = humidityData
       .keyBy(_.location)
       .window(GlobalWindows.create())
@@ -87,9 +83,6 @@ object MapState {
       )
     humidityLevelStream.print()
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     mapStateDemo()
-  }
-}

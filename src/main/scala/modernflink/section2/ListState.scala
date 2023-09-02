@@ -21,14 +21,14 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import collection.JavaConverters.iterableAsScalaIterableConverter
 
-object ListState {
+object ListState:
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
 
-  private def listStateDemo(): Unit = {
+  private def listStateDemo(): Unit =
     // store all temperature change per location
     val humidityChangeStream = humidityData
       .keyBy(_.location)
@@ -54,10 +54,7 @@ object ListState {
       })
     humidityChangeStream.print()
     env.execute()
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     listStateDemo()
-  }
 
-}

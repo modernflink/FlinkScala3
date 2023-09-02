@@ -19,9 +19,9 @@ import Given.given
 import modernflink.model.PurchaseHistory
 import modernflink.model.UserAction
 
-object WindowJoin {
+object WindowJoin:
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -60,5 +60,3 @@ object WindowJoin {
 
     windowJoinStreams.print()
     env.execute()
-  }
-}

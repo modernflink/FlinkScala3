@@ -8,11 +8,11 @@ import org.apache.flink.api.serializers.*
 import scala.util.Try
 
 
-case class UserAction(timestamp: Long, action: String, userid: String, name: String) {
+case class UserAction(timestamp: Long, action: String, userid: String, name: String):
 
   override def toString: String = s"UserAction(${formatTime()}, $action, $userid, $name)"
 
-  def formatTime(format: String = "yyyy-MM-dd"): String = {
+  def formatTime(format: String = "yyyy-MM-dd"): String =
     DateTimeFormatter.ofPattern(format, Locale.ENGLISH)
       .format(
         ZonedDateTime.ofInstant(
@@ -20,8 +20,6 @@ case class UserAction(timestamp: Long, action: String, userid: String, name: Str
           ZoneId.systemDefault()
         )
       )
-  }
-}
 object UserAction:
     def fromString(string: String): UserAction = Try {
       val Array(timestamp, action, userid, name) = string.split(',')

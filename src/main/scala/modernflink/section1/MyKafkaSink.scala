@@ -13,12 +13,12 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import scala.io.Source
 
 
-object MyKafkaSink {
+object MyKafkaSink:
 
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
   val inputFile: DataStream[String] = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData: DataStream[HumidityReading] = inputFile.map(HumidityReading.fromString)
-  private def writeCustomDataToKafka(): Unit = {
+  private def writeCustomDataToKafka(): Unit =
     val myKafkaSink = KafkaSink
       .builder[String]()
       .setBootstrapServers("localhost:9092")
@@ -35,9 +35,6 @@ object MyKafkaSink {
       .sinkTo(myKafkaSink)
     humidityData.print("Write to Kafka")
     env.execute()
-  }
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]): Unit =
       writeCustomDataToKafka()
-    }
-  }

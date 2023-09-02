@@ -13,23 +13,19 @@ import org.apache.flink.streaming.api.datastream.DataStream.Collector
 import org.apache.flink.streaming.api.functions.{ProcessFunction}
 import org.apache.flink.util
 
-class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading] {
-  override def processElement(value: HumidityReading, ctx: ProcessFunction[HumidityReading, HumidityReading]#Context, out: util.Collector[HumidityReading]): Unit = {
-    if value.humidity < 50 then {
+class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading]:
+  override def processElement(value: HumidityReading, ctx: ProcessFunction[HumidityReading, HumidityReading]#Context, out: util.Collector[HumidityReading]): Unit =
+    if value.humidity < 50 then
       ctx.output(FireAlert.lowHumidity, "Fire Hazard at " + value.location)
-    } else {
+    else
       out.collect(value)
-    }
-  }
-}
 
-object FireAlert {
+object FireAlert:
   lazy val lowHumidity = new OutputTag[String]("Fire Hazard")
-}
 
-object SideOutput {
+object SideOutput:
 
-    def main(args: Array[String]): Unit = {
+    def main(args: Array[String]): Unit =
 
       val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -42,5 +38,3 @@ object SideOutput {
       outputProcessedStream.print("Output Stream")
       sideOutputStream.print("Side Output Stream")
       env.execute()
-    }
-  }
