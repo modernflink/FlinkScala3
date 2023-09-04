@@ -66,3 +66,4 @@ object DepositEventGenerator:
   def genUser: String = users(scala.util.Random.nextInt(users.length))
 
   def genCurrency: String = currency(scala.util.Random.nextInt(currency.length))
+

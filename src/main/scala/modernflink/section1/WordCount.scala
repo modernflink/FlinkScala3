@@ -1,42 +1,11 @@
 package modernflink.section1
 
-import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.util.typeutils.{FieldAccessorFactory, ScalaProductFieldAccessorFactory}
 import org.apache.flinkx.api.serializers.*
 import org.apache.flinkx.api.StreamExecutionEnvironment
-import org.slf4j.LoggerFactory
 
-import scala.util.Try
-//import org.apache.flink.connector.kafka.source.KafkaSource
-//import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
-object Givens:
-  given tupleTypeInfo: TypeInformation[Tuple2[String, Int]] =
-    deriveTypeInformation
-case class Pair(string: String, int: Int)
 @main def wordCount =
-  import Givens.tupleTypeInfo
 
-  import scala.collection.Iterable
-  val log = LoggerFactory.getLogger(classOf[FieldAccessorFactory])
-  import org.apache.flink.streaming.util.typeutils.*
-  val scalaProductFieldAccessorFactory =
-    ScalaProductFieldAccessorFactory.load(log)
-  require(scalaProductFieldAccessorFactory != null)
-  val conf = Configuration()
-  conf.setString("state.savepoints.dir", "file:///tmp/savepoints")
-  conf.setString(
-    "execution.checkpointing.externalized-checkpoint-retention",
-    "RETAIN_ON_CANCELLATION"
-  )
-  conf.setString("execution.checkpointing.interval", "10s")
-  conf.setString("execution.checkpointing.min-pause", "10s")
-  conf.setString("state.backend", "filesystem")
-
-  val env = Try(
-    StreamExecutionEnvironment.getExecutionEnvironment
-  ).getOrElse(StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf))
+  val env = StreamExecutionEnvironment.getExecutionEnvironment
   val text = env.fromElements(
     "To be, or not to be,--that is the question:--",
     "Whether 'tis nobler in the mind to suffer",
@@ -46,25 +15,9 @@ case class Pair(string: String, int: Int)
 
   text
     .flatMap(_.toLowerCase.split("\\W+"))
-    .map(Pair(_, 1))
-    .keyBy(_.string)
+    .map((_, 1))
+    .keyBy(_._1)
     .sum(1)
     .print()
 
-  val nums = env
-    .fromElements(1, 2, 3)
-    .map(x => x + 1)
-    .print()
-//  val brokers = "localhost:9092"
-//  val source = KafkaSource
-//    .builder[String]
-//    .setBootstrapServers(brokers)
-//    .setTopics("action")
-//    .setGroupId("my-group")
-//    .setStartingOffsets(OffsetsInitializer.earliest)
-//    .setValueOnlyDeserializer(new SimpleStringSchema)
-//    .build
-//
-//  val stream = env.fromSource(source, WatermarkStrategy.noWatermarks, "Kafka Source")
-//  stream.print()
   env.execute("wordCount")
