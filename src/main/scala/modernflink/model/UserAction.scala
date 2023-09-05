@@ -33,8 +33,7 @@ object UserAction:
     Try {
       val Array(timestamp, action, userid, name) = string.split(',')
       UserAction(timestamp.trim.toLong, action.trim, userid.trim, name.trim)
-    }.toOption
-      .getOrElse(UserAction(0L, "error reading", "error reading", "error reading"))
+    }.getOrElse(UserAction(0L, "error reading", "error reading", "error reading"))
 
   given humidityReadingTypeInformation: TypeInformation[UserAction] =
     deriveTypeInformation

@@ -17,7 +17,7 @@ import org.apache.flinkx.api.StreamExecutionEnvironment
     .flatMap(_.toLowerCase.split("\\W+"))
     .map((_, 1))
     .keyBy(_._1)
-    .sum(1)
+    .reduce((pair1, pair2) => (pair1._1, pair1._2 + pair2._2)).name("keyed sum")
     .print()
 
   env.execute("wordCount")
