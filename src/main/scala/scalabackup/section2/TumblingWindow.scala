@@ -1,7 +1,7 @@
-package modernflink.section2
+package scalabackup.section2
 
-import modernflink.model.BankingEventGenerator
-import modernflink.model.BankingEventGenerator.{Deposit, DepositEventGenerator}
+import scalabackup.modelbackup.BankingEventGenerator
+import scalabackup.modelbackup.BankingEventGenerator.{Deposit, DepositEventGenerator}
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.windowing.assigners.{

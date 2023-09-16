@@ -1,10 +1,9 @@
-package modernflink.section1
+package scalabackup.section1
 
-import modernflink.model.{HumidityReading, TemperatureReading}
+import scalabackup.modelbackup.{HumidityReading, TemperatureReading}
 import org.apache.flinkx.api.serializers.*
 import org.apache.flinkx.api.{ConnectedStreams, DataStream, KeyedStream, StreamExecutionEnvironment}
 
-object MultipleStream:
 
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -25,10 +24,6 @@ object MultipleStream:
       .readTextFile("src/main/resources/MoreHumidityData.txt")
       .map(HumidityReading.fromString)
       .keyBy(_.location)
-
-  def main(args: Array[String]): Unit =
-    unionExample()
-    connectExample()
 
   // Union: combining two data streams with the same data structure
   def unionExample(): Unit =
@@ -60,3 +55,7 @@ object MultipleStream:
 
     outputConnectedStream.print().setParallelism(4)
     env.execute()
+
+@main def multipleStreamsDEmo: Unit =
+  unionExample()
+  connectExample()

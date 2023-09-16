@@ -1,5 +1,5 @@
-package modernflink.section1
-import modernflink.model.HumidityReading
+package scalabackup.section1
+import scalabackup.modelbackup.HumidityReading
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema, SimpleStringSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation

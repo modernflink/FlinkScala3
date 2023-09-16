@@ -1,5 +1,3 @@
-package modernflink.section1
-
 import org.apache.flinkx.api.StreamExecutionEnvironment
 import org.apache.flinkx.api.serializers.*
 

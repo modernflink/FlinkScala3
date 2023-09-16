@@ -1,6 +1,6 @@
-package modernflink.section1
+package scalabackup.section1
 
-import modernflink.model.HumidityReading
+import scalabackup.modelbackup.HumidityReading
 import org.apache.flink.api.common.serialization.{SerializationSchema, SimpleStringSchema}
 import org.apache.flink.connector.base.DeliveryGuarantee
 import org.apache.flink.connector.kafka.sink.{KafkaRecordSerializationSchema, KafkaSink, KafkaSinkBuilder}

@@ -1,6 +1,6 @@
-package modernflink.section2
+package scalabackup.section2
 
-import modernflink.model.HumidityReading
+import scalabackup.modelbackup.HumidityReading
 import org.apache.flinkx.api.{DataStream, OutputTag, StreamExecutionEnvironment}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flinkx.api.serializers.*
@@ -10,7 +10,7 @@ import org.apache.flink.streaming.api.windowing.assigners.{TumblingEventTimeWind
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util
 import org.apache.flink.util.Collector
-import modernflink.section2.Given.instantTypeInfo
+import scalabackup.section2.Given.instantTypeInfo
 import org.apache.flink.api.common.state.{CheckpointListener, ValueState, ValueStateDescriptor}
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction

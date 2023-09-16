@@ -1,7 +1,7 @@
-package modernflink.section2
+package scalabackup.section2
 
-import modernflink.model.{SubscriptionEvent, SubscriptionEventsGenerator}
-import modernflink.section2.Given.instantTypeInfo
+import scalabackup.modelbackup.{SubscriptionEvent, SubscriptionEventsGenerator}
+import scalabackup.section2.Given.instantTypeInfo
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.windowing.assigners.{TumblingEventTimeWindows, TumblingProcessingTimeWindows}

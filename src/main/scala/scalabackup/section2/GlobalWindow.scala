@@ -1,6 +1,6 @@
-package modernflink.section2
+package scalabackup.section2
 
-import modernflink.model.*
+import scalabackup.modelbackup.*
 import org.apache.flink.streaming.api.windowing.assigners.GlobalWindows
 import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
 import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, Window}

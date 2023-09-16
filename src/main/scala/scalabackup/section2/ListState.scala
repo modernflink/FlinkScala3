@@ -1,6 +1,6 @@
-package modernflink.section2
+package scalabackup.section2
 
-import modernflink.model.HumidityReading
+import scalabackup.modelbackup.HumidityReading
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.configuration.Configuration

@@ -5,58 +5,44 @@ import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.util.Collector
-import org.apache.flinkx.api.*
 import org.apache.flinkx.api.serializers.*
+import org.apache.flinkx.api.*
 
-class UserActionProcessFunction() extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val inputFile = env.readTextFile("src/main/resources/UserAction.txt")
+val userActionData = inputFile.map(UserAction.fromString)
 
-  override def processElement(
-      value: UserAction,
-      ctx: KeyedProcessFunction[
-        String,
-        UserAction,
-        (String, String, String)
-      ]#Context,
-      out: Collector[(String, String, String)]
-  ): Unit = out.collect((value.action, value.userid, value.name))
+class UserActionProcessFunction extends KeyedProcessFunction[String, UserAction, (String, String, String)]:
+  override def processElement(value: UserAction,
+                              ctx: KeyedProcessFunction[String, UserAction, (String, String, String)]#Context,
+                              out: Collector[(String, String, String)]): Unit =
+    out.collect((value.action, value.userid, value.name))
 
-object FlinkAPIs:
-
-  val env = StreamExecutionEnvironment.getExecutionEnvironment
-
-  val inputFile = env.readTextFile("src/main/resources/UserAction.txt")
-
-  val userActionData = inputFile.map(UserAction.fromString)
-
-  def lambdaDemo(): Unit =
-
-    // Lambda Function
-
-    val userActionLambdaFunction: DataStream[(String, String, String)] =
-      userActionData
-        .keyBy(_.action)
-        .map(data => (data.action, data.userid, data.name))
-
-    userActionLambdaFunction.print()
-    env.execute()
-
-  // Process Function
-  def processFunctionDemo(): Unit =
-    val userActionStream1: DataStream[(String, String, String)] = userActionData
+def lambdaDemo(): Unit = {
+  val userActionLambdaFunction: DataStream[(String, String, String)] =
+    userActionData
       .keyBy(_.action)
-      .process(new UserActionProcessFunction())
+      .map(data => (data.action, data.userid, data.name))
 
-    userActionStream1.print()
-    env.execute()
+  userActionLambdaFunction.print()
+  env.execute()
+}
 
-  def main(args: Array[String]): Unit =
-    //    lambdaDemo()
-    //    processFunctionDemo()
-    richFunctionDemo()
 
-  // Rich Function
-  def richFunctionDemo(): Unit =
-    val userActionStream2: DataStream[(String, String, String)] = userActionData
+  // process function
+def processFunctionDemo(): Unit = {
+  val userActionProcessFunction: DataStream[(String, String, String)] = userActionData
+    .keyBy(_.action)
+    .process(new UserActionProcessFunction)
+
+  userActionProcessFunction.print()
+  env.execute()
+}
+
+  // rich function
+def richFunctionDemo(): Unit = {
+  val userActionRichFunction: DataStream[(String, String, String)] =
+    userActionData
       .keyBy(_.action)
       .map(new RichMapFunction[UserAction, (String, String, String)] {
         override def map(value: UserAction): (String, String, String) = {
@@ -64,10 +50,18 @@ object FlinkAPIs:
         }
 
         override def open(parameters: Configuration): Unit =
-          println("MapFunction processing starts")
+          println("Start")
 
         override def close(): Unit =
-          println("MapFunction Processing ends")
+          println("Close")
       })
-    userActionStream2.print()
-    env.execute()
+
+  userActionRichFunction.print()
+  env.execute()
+}
+
+@main def flinkAPIs(): Unit =
+//  lambdaDemo()
+//  processFunctionDemo()
+  richFunctionDemo()
+

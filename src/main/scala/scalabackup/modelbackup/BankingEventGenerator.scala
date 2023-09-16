@@ -1,11 +1,11 @@
-package modernflink.model
+package scalabackup.modelbackup
 
+import scalabackup.modelbackup.BankingEventGenerator.DepositEventGenerator
+import scalabackup.modelbackup.DepositEventGenerator.{genCurrency, genUser}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flinkx.api.{DataStream, StreamExecutionEnvironment}
 import org.apache.flinkx.api.serializers.*
-import scalabackup.modelbackup.BankingEventGenerator.DepositEventGenerator
-import scalabackup.modelbackup.DepositEventGenerator.{genCurrency, genUser}
 
 import java.time.Instant
 import java.util.UUID
