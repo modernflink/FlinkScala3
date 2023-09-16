@@ -17,7 +17,6 @@ class FireAlert() extends ProcessFunction[HumidityReading, HumidityReading]:
 object FireAlert:
   lazy val lowHumidity = new OutputTag[String]("Fire Hazard")
 
-
 @main def sideOutputDemo() =
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -29,5 +28,7 @@ object FireAlert:
 
   mainOutputStream.print("Output Stream")
   sideOutputStream.print("Side Output Stream")
+
   env.execute()
+
 

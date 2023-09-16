@@ -22,6 +22,9 @@ case class HumidityReading(location: String, timestamp: Long, humidity: Double):
         )
       )
 
+  def toLocalSummary: LocalSummary =
+    LocalSummary(location, s"Humidity on ${formatTime("yyyy-MM-dd")} is $humidity")
+
 object HumidityReading:
 
   def fromString(string: String): HumidityReading =

@@ -27,6 +27,12 @@ case class TemperatureReading(
         )
       )
 
+  def toLocalSummary: LocalSummary =
+    LocalSummary(
+      location,
+      s"Highest and lowest temperature on ${formatTime()} are $max and $min"
+    )
+
 object TemperatureReading:
   def fromString(string: String): TemperatureReading =
     Try {
