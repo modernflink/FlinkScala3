@@ -12,3 +12,4 @@ import java.time.{Duration, Instant}
 
 @main def globalWindowDemo() =
   val env = StreamExecutionEnvironment.getExecutionEnvironment
+  
