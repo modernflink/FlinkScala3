@@ -8,8 +8,8 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flinkx.api.StreamExecutionEnvironment
 import org.apache.flinkx.api.function. WindowFunction
 import org.apache.flinkx.api.serializers.*
+import java.time.Duration
 
-import java.time.{Duration, Instant}
 
 @main def windowJoin() =
 

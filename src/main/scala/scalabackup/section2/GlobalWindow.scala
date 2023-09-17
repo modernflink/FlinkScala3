@@ -29,24 +29,22 @@ class GlobalWindowDemo extends WindowFunction[HumidityReading, String, String, G
       s"$key - ${input.map(_.timestamp)} - $averageByGlobalWindow - $last - $humidityLevel"
     )
 
-object GlobalWindow:
+@main def globalWindowDemo() =
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
+  
+  val outputGlobalWindowStream = humidityData
+    .keyBy(_.location)
+    .window(GlobalWindows.create())
+    .trigger(
+      PurgingTrigger.of(CountTrigger.of[Window](5))
+    ) // Every 5 elements, Flink will create a new Global Window, then clearing the window
+    .apply(new GlobalWindowDemo)
 
-  def averageOutput(): Unit =
-    val outputGlobalWindowStream = humidityData
-      .keyBy(_.location)
-      .window(GlobalWindows.create())
-      .trigger(
-        PurgingTrigger.of(CountTrigger.of[Window](5))
-      ) // Every 5 elements, Flink will create a new Global Window, then clearing the window
-      .apply(new GlobalWindowDemo)
+  outputGlobalWindowStream.print()
+  env.execute()
 
-    outputGlobalWindowStream.print()
-    env.execute()
 
-  def main(args: Array[String]): Unit =
-    averageOutput()
