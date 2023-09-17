@@ -24,21 +24,21 @@ class SubscriptionEventsGenerator(
 
   // override the run and cancel method that came with the source function
   override def run(ctx: SourceFunction.SourceContext[SubscriptionEvent]): Unit =
-    run(0, 10, ctx)
+    myRun(0, 10, ctx)
 
   override def cancel(): Unit =
     running = false
 
   @tailrec
-  private def run(
+  private def myRun(
       start: Long,
       remainingEvents: Int,
       ctx: SourceFunction.SourceContext[SubscriptionEvent]
   ): Unit =
     if running && remainingEvents > 0 then
       ctx.collect(emitEvent(start)) // .collect emits elements from the source
-      Thread.sleep(sleepSeconds * 1000) // delay emitting events
-      run(start + 1, remainingEvents - 1, ctx)
+      Thread.sleep(sleepSeconds*1000) // delay emitting events
+      myRun(start + 1, remainingEvents - 1, ctx)
 
   // match the events to the type of payment event
   private def emitEvent(offsetSeconds: Long) =

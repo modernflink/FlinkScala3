@@ -23,7 +23,6 @@ val temperatureDataStream: KeyedStream[TemperatureReading, String] = env
 
 // Union
 def unionExample(): Unit =
-
   val unionedHumidityData: DataStream[HumidityReading] = humidityDataStream.union(anotherDataStream)
 
   unionedHumidityData.print()
@@ -31,21 +30,17 @@ def unionExample(): Unit =
 
 // Connect
 def connectExample(): Unit =
-
-  val humidityAndTemperatureData: ConnectedStreams[HumidityReading, TemperatureReading] =
-  humidityDataStream.connect(temperatureDataStream)
+  val humidityAndTempereatureData: ConnectedStreams[HumidityReading, TemperatureReading] =
+    humidityDataStream.connect(temperatureDataStream)
 
   val outputConnectedStream: DataStream[LocalSummary] =
-    humidityAndTemperatureData
+    humidityAndTempereatureData
       .map(_.toLocalSummary, _.toLocalSummary)
       .keyBy(_.location)
 
   outputConnectedStream.print()
   env.execute()
 
-@main def multipleStreamsDemo() =
-  unionExample()
+@main def multipleStreamDemo() =
+//  unionExample()
   connectExample()
-
-
-

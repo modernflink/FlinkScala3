@@ -26,7 +26,7 @@ import java.time.Instant
   // 2. stream from a file
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val testStreamTwo = inputFile.map(HumidityReading.fromString)
-  
+
   testStreamTwo.print("OutputStream2").setParallelism(3)
 
   // 3. stream from socket
