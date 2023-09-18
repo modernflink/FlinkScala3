@@ -16,32 +16,34 @@ val env = StreamExecutionEnvironment.getExecutionEnvironment
 val subscriptionEvent = env.addSource(
   new SubscriptionEventsGenerator(
     sleepSeconds = 1, startTime = Instant.parse("2023-08-13T00:00:00.00Z")
-  ))
+  )
+)
 
 // Processing Time
 def processingTimeDemo(): Unit =
-  val eventStream1 = subscriptionEvent
+  val eventStreamOne = subscriptionEvent
     .keyBy(_.userId)
     .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
     .apply(
-      (userId,
-       timeWindow,
-       events,
-       collector:Collector[(String, String)]
+      (
+        userId,
+        timeWindow,
+        events,
+        collector: Collector[(String, String)]
       ) => {
         collector.collect(
           userId,
           events
-          .map(e =>
-            s"Processing Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName} at ${e.time}"
-          )
-          .mkString(",")
+            .map(e =>
+              s"Processing Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName} at ${e.time}"
+            )
+            .mkString
         )
       }
     )
 
-  eventStream1.print()
-  env.execute()
+//  eventStreamOne.print()
+//  env.execute()
 
 // Event Time
 def eventTimeDemo(): Unit =
@@ -54,7 +56,7 @@ def eventTimeDemo(): Unit =
           )
     )
 
-  val userActionStream2 = withWatermarks
+  val eventStreamTwo = withWatermarks
     .keyBy(_.userId)
     .window(TumblingEventTimeWindows.of(Time.seconds(5)))
     .apply(
@@ -62,22 +64,24 @@ def eventTimeDemo(): Unit =
         userId,
         timeWindow,
         events,
-        collector:Collector[(String, String)]
-        ) => {
+        collector: Collector[(String, String)]
+      ) => {
         collector.collect(
-          (userId,
-            events
-              .map(e =>
-                s"Event Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName}: ${e.time}"
-              ).mkString
-          )
+          userId,
+          events
+            .map(e =>
+              s"Processing Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName} at ${e.time}"
+            )
+            .mkString
         )
       }
     )
 
-  userActionStream2.print()
+  eventStreamTwo.print()
   env.execute()
 
-@main def eventTimeProcessingTimeDemo() =
+
+@main def processingTimeEventTime() =
 //  processingTimeDemo()
   eventTimeDemo()
+
