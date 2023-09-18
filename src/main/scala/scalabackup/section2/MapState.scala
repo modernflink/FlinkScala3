@@ -12,7 +12,6 @@ import org.apache.flink.util.Collector
 import org.apache.flinkx.api.*
 import org.apache.flinkx.api.function.{AllWindowFunction, WindowFunction}
 import org.apache.flinkx.api.serializers.*
-
 import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
@@ -40,68 +39,65 @@ class HumidityByGlobalWindow
       else BelowAverage
     out.collect(KeyedHumidityLevel(key, humidityLevel))
 
-object MapState:
-  val env = StreamExecutionEnvironment.getExecutionEnvironment
-  val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
-  val humidityData = inputFile.map(HumidityReading.fromString)
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
+val humidityData = inputFile.map(HumidityReading.fromString)
 
-  def main(args: Array[String]): Unit =
-    mapStateDemo()
+// Count how many days are below/above average humidity
+@main def mapStateDemo() =
+  
+  val humidityLevelStream: DataStream[KeyedHumidityLevel] = humidityData
+    .keyBy(_.location)
+    .window(GlobalWindows.create())
+    .trigger(
+      PurgingTrigger.of(CountTrigger.of[Window](7))
+    ) // Every 7 elements, Flink will create a new Global Window, then clearing the window
+    .apply(new HumidityByGlobalWindow)
 
-  // Count how many days are below/above average humidity
-  def mapStateDemo(): Unit =
-    val humidityLevelStream: DataStream[KeyedHumidityLevel] = humidityData
-      .keyBy(_.location)
-      .window(GlobalWindows.create())
-      .trigger(
-        PurgingTrigger.of(CountTrigger.of[Window](7))
-      ) // Every 7 elements, Flink will create a new Global Window, then clearing the window
-      .apply(new HumidityByGlobalWindow)
+  val processedHumidityLevel = humidityLevelStream
+    .keyBy(_.location)
+    .process(
+      new KeyedProcessFunction[String, KeyedHumidityLevel, String] {
 
-    val processedHumidityLevel = humidityLevelStream
-      .keyBy(_.location)
-      .process(
-        new KeyedProcessFunction[String, KeyedHumidityLevel, String] {
+        // create the state
+        var humidityLevelCount: MapState[HumidityLevel, Long] = _
 
-          // create the state
-          var humidityLevelCount: MapState[HumidityLevel, Long] = _
-
-          // initialize the state
-          override def open(parameters: Configuration): Unit = {
-            humidityLevelCount = getRuntimeContext.getMapState(
-              new MapStateDescriptor[HumidityLevel, Long](
-                "humidityLevelCounter",
-                classOf[HumidityLevel],
-                classOf[Long]
-              )
+        // initialize the state
+        override def open(parameters: Configuration): Unit = {
+          humidityLevelCount = getRuntimeContext.getMapState(
+            new MapStateDescriptor[HumidityLevel, Long](
+              "humidityLevelCounter",
+              classOf[HumidityLevel],
+              classOf[Long]
             )
-          }
-
-          override def processElement(
-              value: KeyedHumidityLevel,
-              ctx: KeyedProcessFunction[
-                String,
-                KeyedHumidityLevel,
-                String
-              ]#Context,
-              out: Collector[String]
-          ): Unit = {
-
-            // update the state
-            if humidityLevelCount.contains(value.humidityLevel) then {
-              val previousCount = humidityLevelCount.get(value.humidityLevel)
-              val updatedCount = previousCount + 1
-              humidityLevelCount.put(value.humidityLevel, updatedCount)
-            } else {
-              humidityLevelCount.put(value.humidityLevel, 1)
-            }
-
-            // push the output stream
-            out.collect(
-              s"${ctx.getCurrentKey} - ${humidityLevelCount.entries().asScala.mkString(",")}"
-            )
-          }
+          )
         }
-      )
-    humidityLevelStream.print()
-    env.execute()
+
+        override def processElement(
+            value: KeyedHumidityLevel,
+            ctx: KeyedProcessFunction[
+              String,
+              KeyedHumidityLevel,
+              String
+            ]#Context,
+            out: Collector[String]
+        ): Unit = {
+
+          // update the state
+          if humidityLevelCount.contains(value.humidityLevel) then {
+            val previousCount = humidityLevelCount.get(value.humidityLevel)
+            val updatedCount = previousCount + 1
+            humidityLevelCount.put(value.humidityLevel, updatedCount)
+          } else {
+            humidityLevelCount.put(value.humidityLevel, 1)
+          }
+
+          // push the output stream
+          out.collect(
+            s"${ctx.getCurrentKey} - ${humidityLevelCount.entries().asScala.mkString(",")}"
+          )
+        }
+      }
+    )
+  humidityLevelStream.print()
+  env.execute()

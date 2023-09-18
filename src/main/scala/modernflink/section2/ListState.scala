@@ -26,7 +26,7 @@ val humidityData = inputFile.map(HumidityReading.fromString)
 private def listStateDemo(): Unit =
   val humidityChangeStream = humidityData
     .keyBy(_.location)
-    .process(new KeyedProcessFunction[String, HumidityReading, String]:
+    .process(new KeyedProcessFunction[String, HumidityReading, String] {
       // create state
       var humidityOutputStream: ListState[HumidityReading] = _
 
@@ -34,25 +34,22 @@ private def listStateDemo(): Unit =
       override def open(parameters: Configuration): Unit =
         humidityOutputStream = getRuntimeContext.getListState(
           new ListStateDescriptor[HumidityReading](
-            "humidiy",
+            "humidityChangeOutputStream",
             classOf[HumidityReading]
           )
         )
-      override def processElement(
-                                   value: HumidityReading, 
-                                   ctx: KeyedProcessFunction[String, HumidityReading, String]#Context, 
-                                   out: Collector[String]
+
+      override def processElement(value: HumidityReading,
+                                  ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
+                                  out: Collector[String]
                                  ): Unit =
         humidityOutputStream.add(value)
-      val humidityRecords: Iterable[HumidityReading] =
-        humidityOutputStream.get().asScala.toList
-      if humidityRecords.size > 10 then humidityOutputStream.clear()
-      
-      out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
-    )
-  
+        val humidityRecords: Iterable[HumidityReading] =
+          humidityOutputStream.get().asScala.toList
+        if humidityRecords.size > 10 then humidityOutputStream.clear()
+
+        out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
+    })
+
   humidityChangeStream.print()
   env.execute()
-      
-    
-      
