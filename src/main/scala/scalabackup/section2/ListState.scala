@@ -31,21 +31,19 @@ private def listStateDemo(): Unit =
       var humidityOutputStream: ListState[HumidityReading] = _
 
       // initialize state
-      override def open(parameter: Configuration): Unit = {
+      override def open(parameter: Configuration): Unit =
         humidityOutputStream = getRuntimeContext.getListState(
           new ListStateDescriptor[HumidityReading](
             "humidityChangeOutputStream",
             classOf[HumidityReading]
           )
         )
-      }
 
       override def processElement(
-          value: HumidityReading,
-          ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
-          out: Collector[String]
-      ): Unit = {
-
+                                   value: HumidityReading,
+                                   ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
+                                   out: Collector[String]
+                                 ): Unit =
         humidityOutputStream.add(value)
         val humidityRecords: Iterable[HumidityReading] =
           humidityOutputStream.get().asScala.toList
@@ -53,7 +51,8 @@ private def listStateDemo(): Unit =
         if humidityRecords.size > 10 then humidityOutputStream.clear()
 
         out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
-      }
     })
+
+
   humidityChangeStream.print()
   env.execute()

@@ -22,39 +22,37 @@ val humidityData = inputFile.map(HumidityReading.fromString)
 @main def myListState() =
   listStateDemo()
 
+// store all temperature change per location
 private def listStateDemo(): Unit =
-  // store all temperature change per location
   val humidityChangeStream = humidityData
     .keyBy(_.location)
-    .process(new KeyedProcessFunction[String, HumidityReading, String] {
+    .process(new KeyedProcessFunction[String, HumidityReading, String]:
       // create state
       var humidityOutputStream: ListState[HumidityReading] = _
 
       // initialize state
-      override def open(parameter: Configuration): Unit = {
+      override def open(parameters: Configuration): Unit =
         humidityOutputStream = getRuntimeContext.getListState(
           new ListStateDescriptor[HumidityReading](
-            "humidityChangeOutputStream",
+            "humidiy",
             classOf[HumidityReading]
           )
         )
-      }
-
       override def processElement(
-                                   value: HumidityReading,
-                                   ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
+                                   value: HumidityReading, 
+                                   ctx: KeyedProcessFunction[String, HumidityReading, String]#Context, 
                                    out: Collector[String]
-                                 ): Unit = {
-
+                                 ): Unit =
         humidityOutputStream.add(value)
-        val humidityRecords: Iterable[HumidityReading] =
-          humidityOutputStream.get().asScala.toList
-        // keep the list bounded and clear the state when the condition is met
-        if humidityRecords.size > 10 then humidityOutputStream.clear()
-
-        out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
-      }
-    })
+      val humidityRecords: Iterable[HumidityReading] =
+        humidityOutputStream.get().asScala.toList
+      if humidityRecords.size > 10 then humidityOutputStream.clear()
+      
+      out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
+    )
+  
   humidityChangeStream.print()
   env.execute()
-
+      
+    
+      
