@@ -27,10 +27,9 @@ class HumidityByGlobalWindow
   override def apply(
       key: String,
       window: GlobalWindow,
-      unsorted: Iterable[HumidityReading],
+      input: Iterable[HumidityReading],
       out: Collector[KeyedHumidityLevel]
   ): Unit =
-    val input = unsorted.toIndexedSeq.sortBy(_.timestamp)
     val averageByGlobalWindow = input.map(_.humidity).sum / input.size
     val last = input.last
     val humidityLevel: HumidityLevel =
@@ -43,15 +42,15 @@ val env = StreamExecutionEnvironment.getExecutionEnvironment
 val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
 val humidityData = inputFile.map(HumidityReading.fromString)
 
-// Count how many days are below/above average humidity
+// Count the number of days that are below/above average humidity
 @main def mapStateDemo() =
-  
+
   val humidityLevelStream: DataStream[KeyedHumidityLevel] = humidityData
     .keyBy(_.location)
     .window(GlobalWindows.create())
     .trigger(
       PurgingTrigger.of(CountTrigger.of[Window](7))
-    ) // Every 7 elements, Flink will create a new Global Window, then clearing the window
+    )
     .apply(new HumidityByGlobalWindow)
 
   val processedHumidityLevel = humidityLevelStream
@@ -82,7 +81,6 @@ val humidityData = inputFile.map(HumidityReading.fromString)
             ]#Context,
             out: Collector[String]
         ): Unit = {
-
           // update the state
           if humidityLevelCount.contains(value.humidityLevel) then {
             val previousCount = humidityLevelCount.get(value.humidityLevel)
@@ -94,7 +92,7 @@ val humidityData = inputFile.map(HumidityReading.fromString)
 
           // push the output stream
           out.collect(
-            s"${ctx.getCurrentKey} - ${humidityLevelCount.entries().asScala.mkString(",")}"
+            s"${ctx.getCurrentKey} - ${humidityLevelCount}"
           )
         }
       }

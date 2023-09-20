@@ -1,4 +1,4 @@
-package scalabackup.section2
+package modernflink.section2
 
 import modernflink.model.{Deposit, DepositEventGenerator}
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
@@ -15,10 +15,10 @@ import java.time.{Duration, Instant}
 class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWindow]:
 
   override def apply(
-      window: TimeWindow,
-      input: Iterable[Deposit],
-      out: Collector[String]
-  ): Unit =
+                      window: TimeWindow,
+                      input: Iterable[Deposit],
+                      out: Collector[String]
+                    ): Unit =
     out.collect(s"${window.getStart} to ${window.getEnd}: ${input.mkString(", ")}")
 
 @main def slidingWindowDemo() =
@@ -37,22 +37,9 @@ class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWind
         .forBoundedOutOfOrderness(java.time.Duration.ofMillis(0))
         .withTimestampAssigner(new SerializableTimestampAssigner[Deposit] {
           override def extractTimestamp(
-              element: Deposit,
-              recordTimestamp: Long
-          ) =
+                                         element: Deposit,
+                                         recordTimestamp: Long
+                                       ) =
             element.time.toEpochMilli
         })
     )
-
-  val depositByWindowStream = depositData
-    .windowAll(
-      SlidingEventTimeWindows.of(
-        Time.milliseconds(2000),
-        Time.milliseconds(1000)
-      )
-    )
-
-  val slidingWindowStream = depositByWindowStream.apply(new DepositBySlidingWindow)
-
-  slidingWindowStream.print()
-  env.execute()

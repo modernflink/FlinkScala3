@@ -1,18 +1,11 @@
 package scalabackup.section2
 
-import scalabackup.modelbackup.BankingEventGenerator
-import scalabackup.modelbackup.BankingEventGenerator.{Deposit, DepositEventGenerator}
+import modernflink.model.{Deposit, DepositEventGenerator}
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.streaming.api.windowing.assigners.{
-  GlobalWindows,
-  SlidingEventTimeWindows,
-  TumblingEventTimeWindows,
-  TumblingProcessingTimeWindows
-}
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
-import org.apache.flink.streaming.api.windowing.triggers.{CountTrigger, PurgingTrigger}
-import org.apache.flink.streaming.api.windowing.windows.{GlobalWindow, TimeWindow, Window}
+import org.apache.flink.streaming.api.windowing.windows.{TimeWindow, Window}
 import org.apache.flink.util.Collector
 import org.apache.flinkx.api.{DataStream, StreamExecutionEnvironment, WindowedStream}
 import org.apache.flinkx.api.function.WindowFunction
@@ -25,9 +18,9 @@ given instantTypeInfo: TypeInformation[Instant] =
 
 class DepositByTumblingWindow extends WindowFunction[Deposit, String, String, TimeWindow]:
   override def apply(key: String, window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit =
-    out.collect(s"$key ${window.getStart} to ${window.getEnd}: $input")
+    out.collect(s"$key ${window.getStart} to ${window.getEnd}: ${input.mkString(", ")}")
 
-object TumblingWindow:
+@main def tumblingWindowDemo() =
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -36,25 +29,21 @@ object TumblingWindow:
       .addSource(DepositEventGenerator(sleepSeconds = 1, startTime = Instant.parse("2023-08-13T00:00:00.00Z")))
       .assignTimestampsAndWatermarks(
         WatermarkStrategy
-          .forBoundedOutOfOrderness(java.time.Duration.ofMillis(0))
+          .forBoundedOutOfOrderness(java.time.Duration.ofMillis(3))
           .withTimestampAssigner(new SerializableTimestampAssigner[Deposit] {
             override def extractTimestamp(element: Deposit, recordTimestamp: Long) =
               element.time.toEpochMilli
           })
       )
 
-  def main(args: Array[String]): Unit =
-    createTumblingWindowStream()
+  val depositByWindowStream: WindowedStream[Deposit, String, TimeWindow] =
+    depositData
+      .keyBy(_.currency)
+      .window(TumblingEventTimeWindows.of(Time.seconds(5)))
 
-  private def createTumblingWindowStream(): Unit =
-    val depositByWindowStream: WindowedStream[Deposit, String, TimeWindow] =
-      depositData
-        .keyBy(_.currency)
-        .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+  val tumblingWindowStream: DataStream[String] =
+    depositByWindowStream
+      .apply(new DepositByTumblingWindow)
 
-    val tumblingWindowStream: DataStream[String] =
-      depositByWindowStream
-        .apply(new DepositByTumblingWindow)
-
-    tumblingWindowStream.print()
-    env.execute()
+  tumblingWindowStream.print()
+  env.execute()
