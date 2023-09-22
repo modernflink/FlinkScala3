@@ -82,34 +82,27 @@ case class HumidityAlertwithCheckPoint(threshhold: Long)
   ): Unit =
     out.collect(s"timer ${ctx.getCurrentKey} - Humidity increases")
 
-object Checkpoint:
 
+@main def checkpointDemo() =
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-  // set checkpoint intervals
-  env.getCheckpointConfig.setCheckpointInterval(
-    100
-  ) // a checkpoint triggered every 100 ms
+  // set a checkpoint for every 100 ms
+  env.enableCheckpointing(1000) //
   // set checkpoint storage
-  env.getCheckpointConfig.setCheckpointStorage(
-    "file:///home/migs/Documents/FLinkCourse"
-  )
+  env.getCheckpointConfig.setCheckpointStorage("file:///home/migs/Documents/FLinkCourse")
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile
     .map(HumidityReading.fromString)
 
-  def CheckpointDemo(): Unit =
+  val humidityAlertStream = humidityData
+    .keyBy(_.location)
+    .process(HumidityAlertwithCheckPoint(5000))
 
-    val humidityAlertStream = humidityData
-      .keyBy(_.location)
-      .process(HumidityAlertwithCheckPoint(5000))
+  humidityAlertStream
+    .getSideOutput(OutputTag[String]("humidity increases"))
+    .print()
+  humidityAlertStream.print()
+  env.execute()
 
-    humidityAlertStream
-      .getSideOutput(OutputTag[String]("humidity increases"))
-      .print()
-    humidityAlertStream.print()
-    env.execute()
 
-  def main(args: Array[String]): Unit =
-    CheckpointDemo()
