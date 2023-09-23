@@ -51,9 +51,10 @@ def eventTimeDemo(): Unit =
     .assignTimestampsAndWatermarks(
       WatermarkStrategy
         .forBoundedOutOfOrderness(Duration.ofSeconds(10))
-        .withTimestampAssigner(new SerializableTimestampAssigner[SubscriptionEvent]:
-            override def extractTimestamp(element: SubscriptionEvent, recordTimestamp: Long): Long = element.time.toEpochMilli
-          )
+        .withTimestampAssigner(
+          new SerializableTimestampAssigner[SubscriptionEvent]:
+              override def extractTimestamp(element: SubscriptionEvent, recordTimestamp: Long): Long = element.time.toEpochMilli
+            )
     )
 
   val eventStreamTwo = withWatermarks
@@ -70,7 +71,7 @@ def eventTimeDemo(): Unit =
           userId,
           events
             .map(e =>
-              s"Processing Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName} at ${e.time}"
+              s"Event Time Window ${timeWindow.getStart} - ${timeWindow.getEnd}: ${e.getClass.getSimpleName} at ${e.time}"
             )
             .mkString
         )
@@ -80,8 +81,8 @@ def eventTimeDemo(): Unit =
   eventStreamTwo.print()
   env.execute()
 
-
 @main def processingTimeEventTime() =
 //  processingTimeDemo()
   eventTimeDemo()
+
 
