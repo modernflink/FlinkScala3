@@ -23,6 +23,9 @@ val temperatureDataStream: KeyedStream[TemperatureReading, String] = env
 
 // Union
 def unionExample(): Unit =
+
+  val env = StreamExecutionEnvironment.getExecutionEnvironment
+
   val unionedHumidityData: DataStream[HumidityReading] = humidityDataStream.union(anotherDataStream)
 
   unionedHumidityData.print()

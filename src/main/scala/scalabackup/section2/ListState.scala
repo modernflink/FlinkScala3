@@ -14,15 +14,16 @@ import org.apache.flinkx.api.StreamExecutionEnvironment
 import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
+@main def myListState() =
+  listStateDemo()
+
+private def listStateDemo(): Unit =
+
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
   val humidityData = inputFile.map(HumidityReading.fromString)
 
-@main def myListState() =
-  listStateDemo()
-
-private def listStateDemo(): Unit =
   // store all temperature change per location
   val humidityChangeStream = humidityData
     .keyBy(_.location)
