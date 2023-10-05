@@ -23,16 +23,15 @@ class CountDepositCheckpoint
   override def processElement(value: Deposit,
                               ctx: KeyedProcessFunction[String, Deposit, String]#Context,
                               out: Collector[String]): Unit =
-    // get current state
+    if (depositStateCounter.value() == null.asInstanceOf[Int]) then
+      depositStateCounter.update(1) // default value
     val depositCountByCurrency = depositStateCounter.value()
-    // update current state
     depositStateCounter.update(depositCountByCurrency + 1)
     out.collect(s"Total count of deposits in ${value.currency}: ${depositCountByCurrency}")
 
   override def initializeState(context: FunctionInitializationContext): Unit =
     depositStateCounter = context.getKeyedStateStore.getState(new ValueStateDescriptor[Int]("count state", classOf[Int]))
 
-  // invoke snapshot state
   override def snapshotState(context: FunctionSnapshotContext): Unit =
     println(s"Checkpoint at ${context.getCheckpointTimestamp}")
 
@@ -44,7 +43,7 @@ class CountDepositCheckpoint
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   // Set a checkpoint every 1 second
-  env.enableCheckpointing(1000)
+  env.enableCheckpointing(3000)
   // Set checkpoint storage
   env.getCheckpointConfig.setCheckpointStorage("file:///home/migs/Documents/FlinkCourse/CheckpointStorage")
 
@@ -56,11 +55,11 @@ class CountDepositCheckpoint
       )
     )
 
-  val CountDepositStream = depositData
+  val countDepositStream = depositData
     .keyBy(_.currency)
     .process(new CountDepositCheckpoint)
 
-  CountDepositStream.print()
+  countDepositStream.print()
   env.execute()
 
 
