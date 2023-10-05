@@ -11,6 +11,8 @@ import org.apache.flink.util.Collector
 import org.apache.flinkx.api.{DataStream, StreamExecutionEnvironment}
 import org.apache.flinkx.api.serializers.*
 
+import java.nio.file.Paths
+import scala.io.Source
 import java.time.{Duration, Instant}
 
 class CountDepositCheckpoint
@@ -20,17 +22,19 @@ class CountDepositCheckpoint
 
   var depositStateCounter: ValueState[Int] = _
 
-  override def processElement(value: Deposit,
-                              ctx: KeyedProcessFunction[String, Deposit, String]#Context,
-                              out: Collector[String]): Unit =
-    if (depositStateCounter.value() == null.asInstanceOf[Int]) then
-      depositStateCounter.update(1) // default value
+  override def processElement(
+      value: Deposit,
+      ctx: KeyedProcessFunction[String, Deposit, String]#Context,
+      out: Collector[String]
+  ): Unit =
+    if (depositStateCounter.value() == null.asInstanceOf[Int]) then depositStateCounter.update(1) // default value
     val depositCountByCurrency = depositStateCounter.value()
     depositStateCounter.update(depositCountByCurrency + 1)
     out.collect(s"Total count of deposits in ${value.currency}: ${depositCountByCurrency}")
 
   override def initializeState(context: FunctionInitializationContext): Unit =
-    depositStateCounter = context.getKeyedStateStore.getState(new ValueStateDescriptor[Int]("count state", classOf[Int]))
+    depositStateCounter =
+      context.getKeyedStateStore.getState(new ValueStateDescriptor[Int]("count state", classOf[Int]))
 
   override def snapshotState(context: FunctionSnapshotContext): Unit =
     println(s"Checkpoint at ${context.getCheckpointTimestamp}")
@@ -43,9 +47,12 @@ class CountDepositCheckpoint
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
   // Set a checkpoint every 1 second
-  env.enableCheckpointing(3000)
+  env.enableCheckpointing(1000)
+
   // Set checkpoint storage
-  env.getCheckpointConfig.setCheckpointStorage("file:///home/migs/Documents/FlinkCourse/CheckpointStorage")
+  val checkpointPath = Paths.get("CheckpointStorage").toUri
+
+  env.getCheckpointConfig.setCheckpointStorage(checkpointPath)
 
   val depositData = env
     .addSource(
@@ -61,9 +68,3 @@ class CountDepositCheckpoint
 
   countDepositStream.print()
   env.execute()
-
-
-
-
-
-

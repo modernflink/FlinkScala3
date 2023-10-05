@@ -44,14 +44,14 @@ class CountDeposit() extends KeyedProcessFunction[String, Deposit, String]:
 
   val countDepositStream = depositData
     .keyBy(_.currency)
-    .process(CountDeposit())
-//    .mapWithState[String, Int]:
-//      (deposit, state) =>
-//        (
-//          s"Total count of deposits in ${deposit.currency}: ${state.getOrElse(1)}", // output
-//          state.orElse(Some(1)) // Set initial default
-//            .map(_ + 1) // Update state
-//        )
+//    .process(CountDeposit())
+    .mapWithState[String, Int]:
+      (deposit, state) =>
+        (
+          s"Total count of deposits in ${deposit.currency}: ${state.getOrElse(1)}", // output
+          state.orElse(Some(1)) // Set initial default
+            .map(_ + 1) // Update state
+        )
 
   countDepositStream.print()
   env.execute()
