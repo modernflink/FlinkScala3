@@ -14,9 +14,7 @@ import org.apache.flinkx.api.StreamExecutionEnvironment
 import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
-@main def myListState() =
-
-
+@main def myListState(): Unit =
   listStateDemo()
 
 // store all temperature change per location

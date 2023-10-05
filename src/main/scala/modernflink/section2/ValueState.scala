@@ -29,7 +29,7 @@ class CountDeposit() extends KeyedProcessFunction[String, Deposit, String]:
     val depositCountByCurrency = depositStateCounter.value()
     // update current state
     depositStateCounter.update(depositCountByCurrency + 1)
-    out.collect(s"Total count of deposits in ${value.currency}: ${depositCountByCurrency}")
+    out.collect(s"Total count of deposits in ${value.currency}: $depositCountByCurrency")
 
 @main def valueStateDemo(): Unit =
 

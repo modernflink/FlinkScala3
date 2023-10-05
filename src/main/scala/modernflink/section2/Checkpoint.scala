@@ -27,10 +27,10 @@ class CountDepositCheckpoint
       ctx: KeyedProcessFunction[String, Deposit, String]#Context,
       out: Collector[String]
   ): Unit =
-    if (depositStateCounter.value() == null.asInstanceOf[Int]) then depositStateCounter.update(1) // default value
+    if depositStateCounter.value() == null.asInstanceOf[Int] then depositStateCounter.update(1) // default value
     val depositCountByCurrency = depositStateCounter.value()
     depositStateCounter.update(depositCountByCurrency + 1)
-    out.collect(s"Total count of deposits in ${value.currency}: ${depositCountByCurrency}")
+    out.collect(s"Total count of deposits in ${value.currency}: $depositCountByCurrency")
 
   override def initializeState(context: FunctionInitializationContext): Unit =
     depositStateCounter =
