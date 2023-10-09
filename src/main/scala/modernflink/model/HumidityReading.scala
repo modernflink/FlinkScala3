@@ -26,6 +26,7 @@ case class HumidityReading(location: String, timestamp: Long, humidity: Double):
     LocalSummary(location, s"Humidity on ${formatTime("yyyy-MM-dd")} is $humidity")
 
 object HumidityReading:
+  val error = HumidityReading("error reading", 0L, 0.0)
 
   def fromString(string: String): HumidityReading =
     Try {
@@ -35,4 +36,4 @@ object HumidityReading:
         timestamp.trim.toLong,
         humidity.trim.toDouble
       )
-    }.getOrElse(HumidityReading("error reading", 0L, 0.0))
+    }.getOrElse(error)

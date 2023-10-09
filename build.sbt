@@ -22,7 +22,6 @@ val flinkDependencies = Seq(
 
 lazy val root = (project in file(".")).settings(
   name := "my-flink-scala-proj",
-  assembly / mainClass := Some("com.example.wordCount"),
   libraryDependencies ++= flinkDependencies
 )
 

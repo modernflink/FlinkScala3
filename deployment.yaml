@@ -1,7 +1,7 @@
 apiVersion: flink.apache.org/v1beta1
 kind: FlinkDeployment
 metadata:
-  name: flink-word-count
+  name: modern-flink
 spec:
   image: flink:1.17.0-stream2-no-scala
   flinkVersion: v1_17

@@ -16,13 +16,10 @@ class CountDeposit() extends KeyedProcessFunction[String, Deposit, String]:
   var depositStateCounter: ValueState[Int] = _
 
   override def open(parameters: Configuration): Unit =
-    // initialize state
-    depositStateCounter = getRuntimeContext.getState(new ValueStateDescriptor[Int]("count state", classOf[Int]))
+  // initialize state
+  depositStateCounter = getRuntimeContext.getState(new ValueStateDescriptor[Int]("count state", classOf[Int]))
 
-
-  override def processElement(value: Deposit,
-                              ctx: KeyedProcessFunction[String, Deposit, String]#Context,
-                              out: Collector[String]): Unit =
+  override def processElement(value: Deposit, ctx: KeyedProcessFunction[String, Deposit, String]#Context, out: Collector[String]): Unit =
     if depositStateCounter.value() == null.asInstanceOf[Int] then
       depositStateCounter.update(1) // default value
     // get current state
@@ -34,29 +31,25 @@ class CountDeposit() extends KeyedProcessFunction[String, Deposit, String]:
 @main def valueStateDemo(): Unit =
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
+
   val depositData = env
     .addSource(
       new DepositEventGenerator(
-        sleepSeconds = 1,
-        startTime = Instant.parse("2023-08-13T00:00:00.00Z")
+        sleepSeconds = 1, startTime = Instant.parse("2023-08-13T00:00:00.00Z")
       )
     )
 
   val countDepositStream = depositData
     .keyBy(_.currency)
 //    .process(CountDeposit())
+
     .mapWithState[String, Int]:
       (deposit, state) =>
         (
-          s"Total count of deposits in ${deposit.currency}: ${state.getOrElse(1)}", // output
-          state.orElse(Some(1)) // Set initial default
-            .map(_ + 1) // Update state
+          s"Total count of deposits in ${deposit.currency}: ${state.getOrElse(1)}", //output
+            state.orElse(Some(1)) // Set initial default
+              .map(_ + 1) // Update state
         )
 
   countDepositStream.print()
   env.execute()
-
-
-
-
-

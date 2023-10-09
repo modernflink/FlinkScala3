@@ -12,7 +12,6 @@ import org.apache.flinkx.api.{DataStream, StreamExecutionEnvironment}
 import org.apache.flinkx.api.serializers.*
 
 import java.nio.file.Paths
-import scala.io.Source
 import java.time.{Duration, Instant}
 
 class CountDepositCheckpoint
@@ -22,13 +21,12 @@ class CountDepositCheckpoint
 
   var depositStateCounter: ValueState[Int] = _
 
-  override def processElement(
-      value: Deposit,
-      ctx: KeyedProcessFunction[String, Deposit, String]#Context,
-      out: Collector[String]
-  ): Unit =
-    if depositStateCounter.value() == null.asInstanceOf[Int] then depositStateCounter.update(1) // default value
+  override def processElement(value: Deposit, ctx: KeyedProcessFunction[String, Deposit, String]#Context, out: Collector[String]): Unit =
+    if depositStateCounter.value() == null.asInstanceOf[Int] then
+      depositStateCounter.update(1) // default value
+    // get current state
     val depositCountByCurrency = depositStateCounter.value()
+    // update current state
     depositStateCounter.update(depositCountByCurrency + 1)
     out.collect(s"Total count of deposits in ${value.currency}: $depositCountByCurrency")
 
@@ -46,10 +44,10 @@ class CountDepositCheckpoint
 @main def checkpointDemo(): Unit =
   val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-  // Set a checkpoint every 1 second
+  // set a checkpoint every 1 second
   env.enableCheckpointing(1000)
 
-  // Set checkpoint storage
+  // set checkpoint storage
   val checkpointPath = Paths.get("CheckpointStorage").toUri
 
   env.getCheckpointConfig.setCheckpointStorage(checkpointPath)

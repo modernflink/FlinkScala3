@@ -27,7 +27,7 @@ class DepositEventGenerator(sleepSeconds: Long, startTime: Instant = Instant.now
   private var running = true
 
   override def run(ctx: SourceFunction.SourceContext[Deposit]): Unit =
-    myRun(0, 10, ctx)
+    myRun(0, 20, ctx)
 
   override def cancel(): Unit =
     running = false
