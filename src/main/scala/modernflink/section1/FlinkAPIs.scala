@@ -55,6 +55,6 @@ def richFunctionDemo(): Unit =
   env.execute()
 
 @main def flinkAPIs(): Unit =
-//  lambdaDemo()
+  lambdaDemo()
 //  processFunctionDemo()
-  richFunctionDemo()
+//  richFunctionDemo()

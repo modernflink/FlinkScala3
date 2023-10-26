@@ -18,20 +18,20 @@ import java.time.Instant
     HumidityReading("Flagstaff", 1686208915, 59)
   ))
 
-//  testStreamOne.print("OutputStream1").setParallelism(2)
+  testStreamOne.print("OutputStream1").setParallelism(2)
 
-//  env.execute()
+  env.execute()
 
   // 2. stream from a file
   val testStream2 = env
     .readTextFile("src/main/resources/Humidity.txt")
     .map(HumidityReading.fromString)
 
-//  testStream2.print()
+  testStream2.print()
 //  env.execute()
 
-  // 3. stream from a socket
-//  val testStreamThree = env.socketTextStream("127.0.0.1", 1235)
+   // 3. stream from a socket
+  val testStreamThree = env.socketTextStream("127.0.0.1", 1235)
 //  testStreamThree.print()
 //  env.execute()
 
@@ -44,4 +44,4 @@ import java.time.Instant
 
   val testStreamFour: DataStream[SubscriptionEvent] = env.addSource(genEvents)
   testStreamFour.print()
-  env.execute()
+//  env.execute()

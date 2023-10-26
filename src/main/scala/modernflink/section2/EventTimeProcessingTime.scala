@@ -42,8 +42,8 @@ def processingTimeDemo(): Unit =
       }
     )
 
-//  eventStreamOne.print()
-//  env.execute()
+  eventStreamOne.print()
+  env.execute()
 
 // Event Time
 def eventTimeDemo(): Unit =

@@ -1,4 +1,5 @@
-package scalabackup.section1
+package modernflink.section1
+
 import modernflink.model.HumidityReading
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema, SimpleStringSchema}
@@ -14,13 +15,13 @@ class CustomDeserializer extends DeserializationSchema[HumidityReading]:
 
   override def isEndOfStream(nextElement: HumidityReading): Boolean = nextElement == HumidityReading.error
 
-  override def getProducedType: TypeInformation[HumidityReading] =
+  override def getProducedType: Typeclass[HumidityReading] =
     implicitly[TypeInformation[HumidityReading]]
 
 @main def myKafkaSource() =
   val env = StreamExecutionEnvironment.getExecutionEnvironment
-  readCustomDataFromKafka()
 //  readFromKafka()
+  readCustomDataFromKafka()
 
 // read string from Kafka
 def readFromKafka(): Unit =
@@ -29,9 +30,9 @@ def readFromKafka(): Unit =
     .setBootstrapServers("localhost:9092")
     .setTopics("humidity-reading")
     .setGroupId("humidity-group")
-    .setProperty("receive.message.max.bytes", "200M")
     .setStartingOffsets(OffsetsInitializer.earliest())
     .setValueOnlyDeserializer(SimpleStringSchema())
+    .setProperty("receive.message.max.bytes", "200M")
     .build()
 
   val kafkaInput: DataStream[String] =
@@ -40,6 +41,7 @@ def readFromKafka(): Unit =
   kafkaInput.print("Read from Kafka")
   env.execute()
 
+// read custom data from Kafka
 def readCustomDataFromKafka(): Unit =
   val kafkaSource = KafkaSource
     .builder[HumidityReading]()
@@ -48,6 +50,7 @@ def readCustomDataFromKafka(): Unit =
     .setGroupId("humidity-group")
     .setStartingOffsets(OffsetsInitializer.earliest())
     .setValueOnlyDeserializer(CustomDeserializer())
+    .setProperty("receive.message.max.bytes", "200M")
     .build()
 
   val kafkaInput: DataStream[HumidityReading] =
