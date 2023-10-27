@@ -22,32 +22,3 @@ import java.time.Duration
   val inputFile2 = env.readTextFile("src/main/resources/PurchaseDetail.txt")
   val inputData2 = inputFile2.map(PurchaseHistory.fromString)
 
-  val userAction = inputData
-    .assignTimestampsAndWatermarks(
-      WatermarkStrategy
-        .forBoundedOutOfOrderness(java.time.Duration.ofMillis(1000))
-        .withTimestampAssigner(new SerializableTimestampAssigner[UserAction]:
-            override def extractTimestamp(element: UserAction, recordTimestamp: Long): Long = element.timestamp
-          )
-    )
-
-  val purchaseHistory = inputData2
-    .assignTimestampsAndWatermarks(
-      WatermarkStrategy
-        .forBoundedOutOfOrderness(java.time.Duration.ofMillis(1000))
-        .withTimestampAssigner(new SerializableTimestampAssigner[PurchaseHistory]:
-          override def extractTimestamp(element: PurchaseHistory, recordTimestamp: Long): Long = element.timestamp
-        )
-    )
-
-  val windowJoinStreams = userAction
-    .join(purchaseHistory)
-    .where(userAction => userAction.userid)
-    .equalTo(purchaseHistory => purchaseHistory.userid)
-    .window(TumblingEventTimeWindows.of(Time.seconds(10)))
-    .apply((userAction, purchaseHistory) =>
-      s"${userAction.name} spent USD${purchaseHistory.amount} at ${purchaseHistory.formatTime()}."
-    )
-
-  windowJoinStreams.print()
-  env.execute()

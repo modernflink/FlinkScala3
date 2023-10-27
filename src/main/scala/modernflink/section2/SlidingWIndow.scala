@@ -12,9 +12,6 @@ import org.apache.flinkx.api.function.AllWindowFunction
 
 import java.time.{Duration, Instant}
 
-class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWindow]:
-  override def apply(window: TimeWindow, input: Iterable[Deposit], out: Collector[String]): Unit =
-    out.collect(s"${window.getStart} to ${window.getEnd}: ${input.mkString(", ")}")
 
 @main def slidingWindowDemo() =
 
@@ -39,15 +36,3 @@ class DepositBySlidingWindow extends AllWindowFunction[Deposit, String, TimeWind
         })
     )
 
-  val depositByWindowStream = depositData
-    .windowAll(
-      SlidingEventTimeWindows.of(
-        Time.milliseconds(2000),
-        Time.milliseconds(1000)
-      )
-    )
-
-  val slidingWindowStream = depositByWindowStream.apply(new DepositBySlidingWindow)
-
-  slidingWindowStream.print()
-  env.execute()

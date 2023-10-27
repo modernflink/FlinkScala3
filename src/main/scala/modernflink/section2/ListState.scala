@@ -14,43 +14,10 @@ import org.apache.flinkx.api.StreamExecutionEnvironment
 import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
-@main def myListState(): Unit =
-  listStateDemo()
+val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-// store all temperature change per location
-private def listStateDemo(): Unit =
+val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
+val humidityData = inputFile.map(HumidityReading.fromString)
 
-  val env = StreamExecutionEnvironment.getExecutionEnvironment
-  val inputFile = env.readTextFile("src/main/resources/Humidity.txt")
-  val humidityData = inputFile.map(HumidityReading.fromString)
 
-  val humidityChangeStream = humidityData
-    .keyBy(_.location)
-    .process(new KeyedProcessFunction[String, HumidityReading, String] {
-      // create state
-      var humidityOutputStream: ListState[HumidityReading] = _
 
-      // initialize state
-      override def open(parameters: Configuration): Unit =
-        humidityOutputStream = getRuntimeContext.getListState(
-          new ListStateDescriptor[HumidityReading](
-            "humidityChangeOutputStream",
-            classOf[HumidityReading]
-          )
-        )
-
-      override def processElement(
-          value: HumidityReading,
-          ctx: KeyedProcessFunction[String, HumidityReading, String]#Context,
-          out: Collector[String]
-      ): Unit =
-        humidityOutputStream.add(value)
-        val humidityRecords: Iterable[HumidityReading] =
-          humidityOutputStream.get().asScala.toList
-        if humidityRecords.size > 10 then humidityOutputStream.clear()
-
-        out.collect(s"${value.location} - ${humidityRecords.mkString(",")}")
-    })
-
-  humidityChangeStream.print()
-  env.execute()
